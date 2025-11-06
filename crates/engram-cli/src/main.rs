@@ -9,9 +9,6 @@ struct CliArguments {
     path: PathBuf,
 }
 
-#[derive(Debug)]
-struct CustomError(String);
-
 fn main() -> Result<()> {
     let args = CliArguments::parse();
 
