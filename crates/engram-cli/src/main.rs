@@ -1,50 +1,92 @@
 use anyhow::{Context, Result};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use std::fs::read_to_string;
 use std::path::PathBuf;
 
 #[derive(Parser)]
+#[command(name = "engram")]
+#[command(about = "A CLI tool for managing Engram archives", long_about = None)]
 struct CliArguments {
-    pattern: String,
-    path: PathBuf,
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// List files from inside an Engram
+    #[command(alias = "ls")]
+    List {
+        /// Path to the Engram file
+        path: PathBuf,
+    },
+
+    /// Show information about an Engram
+    #[command(alias = "i")]
+    Info {
+        /// Path to the Engram file
+        path: PathBuf,
+
+        /// Show additional detailed information
+        #[arg(long)]
+        inspect: bool,
+    },
+
+    /// Pack files/directory into a new Engram
+    #[command(alias = "p")]
+    Pack {
+        /// Path to pack
+        path: PathBuf,
+
+        /// Output Engram file (optional)
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+
+    /// Search for a pattern in a file
+    Search {
+        /// Pattern to search for
+        pattern: String,
+
+        /// Path to the file
+        path: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
     let args = CliArguments::parse();
 
-    match args.pattern.as_str() {
-        "ls" | "list" => {
-            println!("We should attempt to list files from inside an Engram");
-            return Ok(());
-        },
-        "i" | "info" => {
-            println!("We should attempt to list information about an Engram");
-            return Ok(());
-        },
-        "p" | "pack" => {
-            println!("We should attempt to pack given files/directory into a new Engram.");
-            return Ok(());
-        },
-        "inspect" => {
-            println!("Get additional information appended to `info` argument");
-            return Ok(());
+    match args.command {
+        Commands::List { path } => {
+            println!("Listing files from Engram: {}", path.display());
+            // unimplemented!()
         }
-        &_ => {} // do nothing, but should probably fail gracefully
+
+        Commands::Info { path, inspect } => {
+            println!("Information about Engram: {}", path.display());
+            if inspect {
+                println!("Showing detailed inspection...");
+            }
+            // unimplemented!()
+        }
+
+        Commands::Pack { path, output } => {
+            println!("Packing: {}", path.display());
+            if let Some(out) = output {
+                println!("Output to: {}", out.display());
+            }
+            // unimplemented!()
+        }
+
+        Commands::Search { pattern, path } => {
+            let content = read_to_string(&path)
+                .with_context(|| format!("could not read file `{}`", path.display()))?;
+
+            find_matches(&content, &pattern, &mut std::io::stdout())
+                .with_context(|| format!("failed to find matching content for pattern `{}`", pattern))?;
+            
+            // unimplemented!()
+        }
     }
-
-    let content = read_to_string(&args.path)
-        .with_context(|| format!("could not read file `{}`", &args.path.display().to_string()))?;
-
-    // prints the entire raw contents of the file
-    // println!("file content: {}", content);
-
-    // find_matches(&content, &args.pattern);
-    find_matches(&content, &args.pattern, &mut std::io::stdout()).with_context(|| {
-        format!(
-            "failed to find matching content for pattern `{}`",
-            &args.pattern
-        )
-    })?;
 
     Ok(())
 }
@@ -55,6 +97,5 @@ fn find_matches(content: &str, pattern: &str, mut writer: impl std::io::Write) -
             writeln!(writer, "{}", line)?;
         }
     }
-
     Ok(())
 }
