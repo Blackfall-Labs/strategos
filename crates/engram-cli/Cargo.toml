@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
     engram-core = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-core" }
     engram-vfs  = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-vfs" }
+    clap.workspace = true
     thiserror.workspace = true
     crc32fast.workspace = true
     lz4_flex.workspace = true
