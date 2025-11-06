@@ -190,6 +190,12 @@ Archive created successfully: single_file.eng
 hello.txt
 ```
 
+### Cleanup
+
+```bash
+rm -rf test_data test_data.eng single_file.eng
+```
+
 ### Run Tests
 
 ```bash
