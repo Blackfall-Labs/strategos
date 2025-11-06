@@ -1,0 +1,24 @@
+[workspace] # reference https://doc.rust-lang.org/cargo/reference/workspaces.html
+    members = ["crates/engram-cli"]
+    resolver = "2"
+
+[workspace.package] # reference https://doc.rust-lang.org/cargo/reference/manifest.html
+    version = "0.1.0"
+    edition = "2024"
+    authors = ["Engram Contributors"]
+    license = "MIT"
+    repository = "https://www.github.com/Manifest-Humanity/engram-cli"
+
+# reference https://doc.rust-lang.org/cargo/guide/dependencies.html
+# reference https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+[workspace.dependencies]
+# Shared dependencies
+    thiserror = "1.0"
+    crc32fast = "1.4"
+    lz4_flex = "0.11"
+    zstd = "0.13"
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+
+    # SQLite
+    rusqlite = { version = "0.31", features = ["bundled", "backup"] }

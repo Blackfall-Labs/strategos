@@ -1,0 +1,23 @@
+[package]
+    name = "engram-cli"
+    version.workspace = true
+    edition.workspace = true
+    authors.workspace = true
+    license.workspace = true
+
+[[bin]]
+name = "engram-cli"
+path = "src/main.rs"
+
+[dependencies]
+    engram-core = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-core" }
+    engram-vfs  = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-vfs" }
+    thiserror.workspace = true
+    crc32fast.workspace = true
+    lz4_flex.workspace = true
+    zstd.workspace = true
+    serde.workspace = true
+    serde_json.workspace = true
+
+[dev-dependencies]
+    tempfile = "3.8"
