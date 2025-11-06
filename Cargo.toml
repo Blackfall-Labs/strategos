@@ -9,9 +9,15 @@
     license = "MIT"
     repository = "https://www.github.com/Manifest-Humanity/engram-cli"
 
+#[workspace.dev-dependencies]
+#    tempfile = "3.8"
+#    assert_cmd = "2.0.14"
+#    predicates = "3.1.0"
+
 # reference https://doc.rust-lang.org/cargo/guide/dependencies.html
 # reference https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
 [workspace.dependencies]
+
     # Shared dependencies
     anyhow = "1.0"
     clap = { version = "4.0", features = ["derive"] }
