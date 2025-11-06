@@ -13,41 +13,41 @@ struct CliArguments {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// List files from inside an Engram
+    /// Lists all files and directories contained within an Engram archive
     #[command(alias = "ls")]
     List {
-        /// Path to the Engram file
+        /// Path to the Engram archive file
         path: PathBuf,
     },
 
-    /// Show information about an Engram
+    /// Displays metadata and statistics about an Engram archive
     #[command(alias = "i")]
     Info {
-        /// Path to the Engram file
+        /// Path to the Engram archive file
         path: PathBuf,
 
-        /// Show additional detailed information
+        /// Display detailed inspection data including internal structure
         #[arg(long)]
         inspect: bool,
     },
 
-    /// Pack files/directory into a new Engram
+    /// Packs files or directories into a new Engram archive
     #[command(alias = "p")]
     Pack {
-        /// Path to pack
+        /// Path to the file or directory to pack into an archive
         path: PathBuf,
 
-        /// Output Engram file (optional)
+        /// Path for the output archive (defaults to input name with .engram extension)
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
 
-    /// Search for a pattern in a file
+    /// Searches for a text pattern within a file and prints matching lines
     Search {
-        /// Pattern to search for
+        /// Text pattern to search for in the file
         pattern: String,
 
-        /// Path to the file
+        /// Path to the file to search
         path: PathBuf,
     },
 }
@@ -91,6 +91,12 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// Searches through content line-by-line and writes lines containing the pattern to the writer
+///
+/// # Arguments
+/// * `content` - The text content to search through
+/// * `pattern` - The substring pattern to match
+/// * `writer` - Output destination for matching lines
 fn find_matches(content: &str, pattern: &str, mut writer: impl std::io::Write) -> Result<()> {
     for line in content.lines() {
         if line.contains(pattern) {
