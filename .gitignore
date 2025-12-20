@@ -28,3 +28,6 @@ _reference
 # Test artifacts
 *.eng
 test_data/
+
+# Build artifacts (from build scripts)
+dist/

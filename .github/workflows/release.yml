@@ -1,0 +1,192 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build - ${{ matrix.platform.os_name }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          # Windows
+          - os_name: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: engram.exe
+            name: engram-Windows-x86_64.exe
+
+          # macOS Intel
+          - os_name: macOS-x86_64
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: engram
+            name: engram-Darwin-x86_64
+
+          # macOS Apple Silicon
+          - os_name: macOS-aarch64
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: engram
+            name: engram-Darwin-aarch64
+
+          # Linux x86_64 (GNU)
+          - os_name: Linux-x86_64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            bin: engram
+            name: engram-Linux-x86_64
+
+          # Linux x86_64 (MUSL - static binary)
+          - os_name: Linux-x86_64-musl
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            bin: engram
+            name: engram-Linux-x86_64-musl
+
+          # Linux ARM64
+          - os_name: Linux-aarch64
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            bin: engram
+            name: engram-Linux-aarch64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Install MUSL tools (Linux MUSL)
+        if: matrix.platform.target == 'x86_64-unknown-linux-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Build binary
+        run: |
+          cargo build --release --target ${{ matrix.platform.target }}
+
+      - name: Strip binary (Linux and macOS)
+        if: matrix.platform.os != 'windows-latest'
+        run: |
+          strip target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+
+      - name: Rename binary
+        run: |
+          mv target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} ${{ matrix.platform.name }}
+
+      - name: Generate SHA-256 checksum
+        shell: bash
+        run: |
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            certutil -hashfile ${{ matrix.platform.name }} SHA256 | grep -v "hash" | tr -d '\r\n ' > ${{ matrix.platform.name }}.sha256
+          else
+            shasum -a 256 ${{ matrix.platform.name }} | awk '{print $1}' > ${{ matrix.platform.name }}.sha256
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.os_name }}
+          path: |
+            ${{ matrix.platform.name }}
+            ${{ matrix.platform.name }}.sha256
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Create release notes
+        run: |
+          echo "# Engram CLI ${{ github.ref_name }}" > release_notes.md
+          echo "" >> release_notes.md
+          echo "## Downloads" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "Choose the binary for your platform:" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Windows" >> release_notes.md
+          echo "- \`engram-Windows-x86_64.exe\` - Windows 64-bit" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### macOS" >> release_notes.md
+          echo "- \`engram-Darwin-x86_64\` - macOS Intel (x86_64)" >> release_notes.md
+          echo "- \`engram-Darwin-aarch64\` - macOS Apple Silicon (ARM64)" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Linux" >> release_notes.md
+          echo "- \`engram-Linux-x86_64\` - Linux x86_64 (GNU libc)" >> release_notes.md
+          echo "- \`engram-Linux-x86_64-musl\` - Linux x86_64 (static, no dependencies)" >> release_notes.md
+          echo "- \`engram-Linux-aarch64\` - Linux ARM64" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## Verification" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "Each binary includes a \`.sha256\` file for verification:" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "\`\`\`bash" >> release_notes.md
+          echo "# Linux/macOS" >> release_notes.md
+          echo "sha256sum -c engram-Linux-x86_64.sha256" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "# Windows (PowerShell)" >> release_notes.md
+          echo "Get-FileHash engram-Windows-x86_64.exe -Algorithm SHA256" >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## Installation" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "See the [README](https://github.com/blackfall-labs/engram-cli#installation) for detailed installation instructions." >> release_notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-crates-io:
+    name: Publish to crates.io
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: |
+          cargo publish --token ${{ secrets.CARGO_TOKEN }} --package engram-cli
+        continue-on-error: true  # Don't fail if already published

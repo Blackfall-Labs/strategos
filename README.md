@@ -1,6 +1,21 @@
 # engram-cli
 
+[![CI](https://github.com/blackfall-labs/engram-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/blackfall-labs/engram-cli/actions/workflows/ci.yml)
+[![Release](https://github.com/blackfall-labs/engram-cli/actions/workflows/release.yml/badge.svg)](https://github.com/blackfall-labs/engram-cli/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A comprehensive CLI tool for managing Engram archives - create, inspect, extract, sign, and query `.eng` archive files.
+
+## Supported Platforms
+
+| Platform | Architecture | Binary Name |
+|----------|-------------|-------------|
+| Windows | x86_64 | `engram-Windows-x86_64.exe` |
+| macOS | x86_64 (Intel) | `engram-Darwin-x86_64` |
+| macOS | aarch64 (Apple Silicon) | `engram-Darwin-aarch64` |
+| Linux | x86_64 (GNU) | `engram-Linux-x86_64` |
+| Linux | x86_64 (MUSL) | `engram-Linux-x86_64-musl` |
+| Linux | aarch64 (ARM64) | `engram-Linux-aarch64` |
 
 ## Features
 
@@ -16,32 +31,100 @@ A comprehensive CLI tool for managing Engram archives - create, inspect, extract
 
 ## Installation
 
+### Quick Install (Recommended)
+
+**Linux / macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.ps1 | iex
+```
+
+### Install via Cargo
+
+If you have Rust installed:
+
+```bash
+cargo install --git https://github.com/blackfall-labs/engram-cli engram-cli
+```
+
+### Pre-built Binaries
+
+Download pre-built binaries from the [Releases page](https://github.com/blackfall-labs/engram-cli/releases/latest):
+
+#### Windows
+- Download `engram-Windows-x86_64.exe`
+- Rename to `engram.exe`
+- Add to your PATH or place in a directory that's already in PATH
+
+#### macOS
+**Intel (x86_64):**
+```bash
+# Download and install
+curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-x86_64
+chmod +x engram-Darwin-x86_64
+sudo mv engram-Darwin-x86_64 /usr/local/bin/engram
+```
+
+**Apple Silicon (ARM64):**
+```bash
+# Download and install
+curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-aarch64
+chmod +x engram-Darwin-aarch64
+sudo mv engram-Darwin-aarch64 /usr/local/bin/engram
+```
+
+#### Linux
+
+**x86_64 (recommended - static binary):**
+```bash
+# Download and install
+curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64-musl
+chmod +x engram-Linux-x86_64-musl
+sudo mv engram-Linux-x86_64-musl /usr/local/bin/engram
+```
+
+**x86_64 (GNU libc):**
+```bash
+curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64
+chmod +x engram-Linux-x86_64
+sudo mv engram-Linux-x86_64 /usr/local/bin/engram
+```
+
+**ARM64:**
+```bash
+curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-aarch64
+chmod +x engram-Linux-aarch64
+sudo mv engram-Linux-aarch64 /usr/local/bin/engram
+```
+
+### Verify Installation
+
+After installation, verify it works:
+
+```bash
+engram --version
+engram --help
+```
+
 ### Building from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/Manifest-Humanity/engram-cli
+git clone https://github.com/blackfall-labs/engram-cli
 cd engram-cli
 
 # Build with Cargo
 cargo build --release
 
 # Binary will be at: target/release/engram.exe (Windows) or target/release/engram (Unix)
+
+# Optionally install to cargo bin directory
+cargo install --path crates/engram-cli
 ```
-
-### Private Dependency Setup
-
-This project depends on the private `engram-rs` library. You need to configure Git authentication:
-
-1. Create a `.env` file (see `.env.example`):
-   ```
-   GITHUB_TOKEN=your_github_personal_access_token
-   ```
-
-2. Configure Git to use your token:
-   ```bash
-   git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-   ```
 
 ## Commands
 
@@ -407,5 +490,5 @@ MIT
 
 ## Related Projects
 
-- [engram-specification](https://github.com/Manifest-Humanity/engram-specification) - Engram format specification
-- [engram-core](https://github.com/Manifest-Humanity/engram-core) - Core Rust library
+- [engram-specification](https://github.com/blackfall-labs/engram-specification) - Engram format specification
+- [engram-rs](https://github.com/blackfall-labs/engram-rs) - Core Rust library

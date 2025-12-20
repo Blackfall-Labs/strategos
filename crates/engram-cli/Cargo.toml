@@ -11,7 +11,7 @@
 
 [dependencies]
     # Engram core library (unified package)
-    engram-rs = { git = "https://github.com/Manifest-Humanity/engram-core", branch = "engram-rs-migration" }
+    engram-rs = { git = "https://github.com/blackfall-labs/engram-rs", branch = "main" }
 
     # CLI & workspace deps
     clap.workspace = true

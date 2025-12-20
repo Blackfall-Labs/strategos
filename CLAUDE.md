@@ -26,7 +26,7 @@ engram-vfs  = { git = "...", package = "engram-vfs" }
 
 **New (v0.2+):**
 ```toml
-engram-rs = { git = "https://github.com/Manifest-Humanity/engram-core", branch = "engram-rs-migration" }
+engram-rs = { git = "https://github.com/blackfall-labs/engram-rs", branch = "main" }
 ```
 
 The `engram-rs` library is a unified package that combines:
@@ -132,33 +132,19 @@ cargo clippy
 cargo fix
 ```
 
-## Private Repository Access
+## Dependencies
 
-**CRITICAL**: This project depends on the private `engram-rs` repository.
+This project depends on the public `engram-rs` library from GitHub:
 
-### Setup
+```toml
+engram-rs = { git = "https://github.com/blackfall-labs/engram-rs", branch = "main" }
+```
 
-1. **Create `.env` file** (gitignored, see `.env.example`):
-   ```
-   GITHUB_TOKEN=ghp_your_personal_access_token_here
-   ```
+No special authentication is required as the repositories are public.
 
-2. **Configure Git credentials**:
-   ```bash
-   git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-   ```
-
-3. **Never commit**:
-   - `.env` file
-   - Access tokens in any form
-   - Private keys
-
-### Generating GitHub Token
-
-1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Click "Generate new token (classic)"
-3. Grant the "repo" scope (full control of private repositories)
-4. Copy token and add to `.env`
+**Important**: Never commit:
+- `.env` files (if used for local configuration)
+- Private keys or secrets
 
 ## Command Implementation Details
 
@@ -573,4 +559,4 @@ For issues or questions:
 - Check MIGRATION_PLAN.md for detailed migration notes
 - Review README.md for usage examples
 - Consult engram-specification for format details
-- Report bugs at: https://github.com/Manifest-Humanity/engram-cli/issues
+- Report bugs at: https://github.com/blackfall-labs/engram-cli/issues
