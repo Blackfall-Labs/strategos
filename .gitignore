@@ -21,3 +21,10 @@ target
 #.idea/
 
 _reference
+
+# Environment variables (contains secrets)
+.env
+
+# Test artifacts
+*.eng
+test_data/

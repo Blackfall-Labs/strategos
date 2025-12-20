@@ -11,7 +11,7 @@ fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("search").arg("foobar").arg("test/file/doesnt/exist");
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("could not read file"));
+        .stderr(predicate::str::contains("Could not read file"));
 
     Ok(())
 }
@@ -179,7 +179,7 @@ fn list_nonexistent_archive() -> Result<(), Box<dyn std::error::Error>> {
 
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("failed to open archive"));
+        .stderr(predicate::str::contains("Failed to open archive"));
 
     Ok(())
 }
@@ -192,7 +192,7 @@ fn info_nonexistent_archive() -> Result<(), Box<dyn std::error::Error>> {
 
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("failed to open archive"));
+        .stderr(predicate::str::contains("Failed to open archive"));
 
     Ok(())
 }

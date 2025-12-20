@@ -9,22 +9,33 @@
     name = "engram"
     path = "src/main.rs"
 
-# only needed when developing the crate
-[dev-dependencies]
-
-# required in binary
 [dependencies]
-    assert_cmd = "2.0.14"
-    predicates = "3.1.0"
-    tempfile = "3.8"
-    engram-core = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-core" }
-    engram-vfs  = { git = "https://github.com/Manifest-Humanity/engram-core", package = "engram-vfs" }
+    # Engram core library (unified package)
+    engram-rs = { git = "https://github.com/Manifest-Humanity/engram-core", branch = "engram-rs-migration" }
+
+    # CLI & workspace deps
     clap.workspace = true
     anyhow.workspace = true
     thiserror.workspace = true
-    crc32fast.workspace = true
-    lz4_flex.workspace = true
-    zstd.workspace = true
     serde.workspace = true
     serde_json.workspace = true
+    toml.workspace = true
     walkdir.workspace = true
+
+    # Cryptography
+    ed25519-dalek.workspace = true
+    sha2.workspace = true
+    hex.workspace = true
+    rand.workspace = true
+
+    # Logging
+    tracing.workspace = true
+    tracing-subscriber.workspace = true
+
+    # Database (for query command)
+    rusqlite.workspace = true
+
+[dev-dependencies]
+    assert_cmd = "2.0.14"
+    predicates = "3.1.0"
+    tempfile = "3.8"
