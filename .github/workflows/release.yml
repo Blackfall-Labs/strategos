@@ -81,13 +81,20 @@ jobs:
           sudo apt-get install -y musl-tools
 
       - name: Build binary
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          AR_aarch64_unknown_linux_gnu: aarch64-linux-gnu-ar
         run: |
           cargo build --release --target ${{ matrix.platform.target }}
 
       - name: Strip binary (Linux and macOS)
         if: matrix.platform.os != 'windows-latest'
         run: |
-          strip target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+          if [[ "${{ matrix.platform.target }}" == "aarch64-unknown-linux-gnu" ]]; then
+            aarch64-linux-gnu-strip target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+          else
+            strip target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+          fi
 
       - name: Rename binary
         run: |
@@ -188,5 +195,5 @@ jobs:
 
       - name: Publish to crates.io
         run: |
-          cargo publish --token ${{ secrets.CARGO_TOKEN }} --package engram-cli
+          cargo publish --token ${{ secrets.CARGO_TOKEN }}
         continue-on-error: true  # Don't fail if already published
