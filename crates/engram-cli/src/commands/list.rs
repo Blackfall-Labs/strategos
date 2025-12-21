@@ -7,8 +7,9 @@ use std::path::Path;
 use crate::utils::compression::compression_name;
 
 pub fn list(archive_path: &Path, long: bool, databases: bool) -> Result<()> {
-    let reader = ArchiveReader::open(archive_path)
+    let mut reader = ArchiveReader::open(archive_path)
         .with_context(|| format!("Failed to open archive `{}`", archive_path.display()))?;
+    reader.initialize()?;
 
     // Clone the files list to avoid borrowing issues
     let all_files: Vec<String> = reader.list_files().to_vec();

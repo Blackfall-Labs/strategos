@@ -9,6 +9,7 @@ use crate::utils::compression::compression_name;
 pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: bool) -> Result<()> {
     let mut reader = ArchiveReader::open(archive_path)
         .with_context(|| format!("Failed to open archive `{}`", archive_path.display()))?;
+    reader.initialize()?;
 
     // Show manifest only
     if manifest_only {
@@ -32,7 +33,7 @@ pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: boo
     let mut total_compressed = 0u64;
 
     for file_path in reader.list_files() {
-        if let Some(entry) = reader.get_entry(&file_path) {
+        if let Some(entry) = reader.get_entry(file_path) {
             total_uncompressed += entry.uncompressed_size;
             total_compressed += entry.compressed_size;
         }
@@ -48,36 +49,36 @@ pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: boo
     println!("Compressed: {} bytes ({:.1}%)", total_compressed, ratio);
 
     // Show manifest if present
-    if let Ok(Some(manifest_value)) = reader.read_manifest() {
-        if let Ok(manifest) = serde_json::from_value::<engram_rs::Manifest>(manifest_value.clone()) {
-            println!("\nManifest:");
-            println!("  ID: {}", manifest.id);
-            println!("  Name: {}", manifest.name);
-            println!("  Version: {}", manifest.metadata.version);
-            println!("  Author: {}", manifest.author.name);
-            if !manifest.signatures.is_empty() {
-                println!("  Signatures: {}", manifest.signatures.len());
-            }
+    if let Ok(Some(manifest_value)) = reader.read_manifest()
+        && let Ok(manifest) = serde_json::from_value::<engram_rs::Manifest>(manifest_value.clone())
+    {
+        println!("\nManifest:");
+        println!("  ID: {}", manifest.id);
+        println!("  Name: {}", manifest.name);
+        println!("  Version: {}", manifest.metadata.version);
+        println!("  Author: {}", manifest.author.name);
+        if !manifest.signatures.is_empty() {
+            println!("  Signatures: {}", manifest.signatures.len());
+        }
 
-            // Verify signatures
-            if verify {
-                println!("\nVerifying signatures...");
-                if manifest.signatures.is_empty() {
-                    println!("  No signatures found");
-                } else {
-                    match manifest.verify_signatures() {
-                        Ok(results) => {
-                            for (i, valid) in results.iter().enumerate() {
-                                if *valid {
-                                    println!("  ✓ Signature {} valid", i + 1);
-                                } else {
-                                    println!("  ✗ Signature {} invalid", i + 1);
-                                }
+        // Verify signatures
+        if verify {
+            println!("\nVerifying signatures...");
+            if manifest.signatures.is_empty() {
+                println!("  No signatures found");
+            } else {
+                match manifest.verify_signatures() {
+                    Ok(results) => {
+                        for (i, valid) in results.iter().enumerate() {
+                            if *valid {
+                                println!("  ✓ Signature {} valid", i + 1);
+                            } else {
+                                println!("  ✗ Signature {} invalid", i + 1);
                             }
                         }
-                        Err(e) => {
-                            println!("  Error verifying signatures: {}", e);
-                        }
+                    }
+                    Err(e) => {
+                        println!("  Error verifying signatures: {}", e);
                     }
                 }
             }
@@ -91,7 +92,7 @@ pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: boo
         println!("{:-<60}", "");
 
         for file_path in reader.list_files() {
-            if let Some(entry) = reader.get_entry(&file_path) {
+            if let Some(entry) = reader.get_entry(file_path) {
                 let compression_ratio = if entry.uncompressed_size > 0 {
                     (entry.compressed_size as f64 / entry.uncompressed_size as f64) * 100.0
                 } else {

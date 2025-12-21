@@ -11,7 +11,7 @@
 
 [dependencies]
     # Engram core library (unified package)
-    engram-rs = { git = "https://github.com/blackfall-labs/engram-rs", branch = "main" }
+    engram-rs = "1.0.0"
 
     # CLI & workspace deps
     clap.workspace = true

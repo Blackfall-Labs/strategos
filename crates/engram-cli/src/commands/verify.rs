@@ -14,6 +14,7 @@ pub fn verify(
 ) -> Result<()> {
     let mut reader = ArchiveReader::open(archive_path)
         .with_context(|| format!("Failed to open archive `{}`", archive_path.display()))?;
+    reader.initialize()?;
 
     println!("Verifying: {}", archive_path.display());
 

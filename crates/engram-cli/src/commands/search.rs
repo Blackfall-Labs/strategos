@@ -33,6 +33,7 @@ fn search_in_file(pattern: &str, path: &Path, case_insensitive: bool) -> Result<
 
 fn search_in_archive(pattern: &str, archive_path: &Path, case_insensitive: bool) -> Result<()> {
     let mut reader = ArchiveReader::open(archive_path)?;
+    reader.initialize()?;
 
     let mut found_any = false;
 
@@ -41,29 +42,29 @@ fn search_in_archive(pattern: &str, archive_path: &Path, case_insensitive: bool)
 
     for file_path in &all_files {
         // Try to read as text
-        if let Ok(data) = reader.read_file(&file_path) {
-            if let Ok(content) = String::from_utf8(data) {
-                let mut matches = Vec::new();
+        if let Ok(data) = reader.read_file(file_path)
+            && let Ok(content) = String::from_utf8(data)
+        {
+            let mut matches = Vec::new();
 
-                for line in content.lines() {
-                    let matches_line = if case_insensitive {
-                        line.to_lowercase().contains(&pattern.to_lowercase())
-                    } else {
-                        line.contains(pattern)
-                    };
+            for line in content.lines() {
+                let matches_line = if case_insensitive {
+                    line.to_lowercase().contains(&pattern.to_lowercase())
+                } else {
+                    line.contains(pattern)
+                };
 
-                    if matches_line {
-                        matches.push(line.to_string());
-                    }
+                if matches_line {
+                    matches.push(line.to_string());
                 }
+            }
 
-                if !matches.is_empty() {
-                    println!("\n{}:", file_path);
-                    for line in matches {
-                        println!("  {}", line);
-                    }
-                    found_any = true;
+            if !matches.is_empty() {
+                println!("\n{}:", file_path);
+                for line in matches {
+                    println!("  {}", line);
                 }
+                found_any = true;
             }
         }
     }

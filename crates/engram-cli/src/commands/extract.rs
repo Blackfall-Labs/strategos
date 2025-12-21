@@ -13,6 +13,7 @@ pub fn extract(
 ) -> Result<()> {
     let mut reader = ArchiveReader::open(archive_path)
         .with_context(|| format!("Failed to open archive `{}`", archive_path.display()))?;
+    reader.initialize()?;
 
     // Create output directory
     fs::create_dir_all(output_dir)

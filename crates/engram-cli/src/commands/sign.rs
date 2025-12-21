@@ -18,6 +18,7 @@ pub fn sign(
 
     // Read archive to get manifest
     let mut reader = ArchiveReader::open(archive_path)?;
+    reader.initialize()?;
 
     let manifest_value = reader.read_manifest()?
         .context("No manifest found in archive")?;
