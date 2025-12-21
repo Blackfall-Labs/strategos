@@ -50,13 +50,12 @@ pub fn pack(
     }
 
     // Add manifest if provided
-    let mut engram_manifest = None;
     if let Some(manifest_file) = manifest_path {
         let toml_manifest = TomlManifest::load(manifest_file)?;
-        engram_manifest = Some(toml_manifest.to_engram_manifest());
+        let engram_manifest = toml_manifest.to_engram_manifest();
 
         // Add manifest.json to archive
-        let manifest_json = serde_json::to_vec_pretty(engram_manifest.as_ref().unwrap())?;
+        let manifest_json = serde_json::to_vec_pretty(&engram_manifest)?;
         writer.add_file_with_compression(
             "manifest.json",
             &manifest_json,
