@@ -34,7 +34,8 @@ impl TomlManifest {
     /// Load manifest from TOML file
     pub fn load(path: impl AsRef<Path>) -> Result<Self> {
         let content = fs::read_to_string(path).context("Failed to read manifest file")?;
-        let manifest: TomlManifest = toml::from_str(&content).context("Failed to parse manifest")?;
+        let manifest: TomlManifest =
+            toml::from_str(&content).context("Failed to parse manifest")?;
         Ok(manifest)
     }
 

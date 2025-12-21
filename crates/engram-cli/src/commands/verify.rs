@@ -19,7 +19,8 @@ pub fn verify(
     println!("Verifying: {}", archive_path.display());
 
     // Read manifest
-    let manifest_value = reader.read_manifest()?
+    let manifest_value = reader
+        .read_manifest()?
         .context("No manifest found in archive")?;
 
     let manifest: engram_rs::Manifest = serde_json::from_value(manifest_value)?;

@@ -57,7 +57,11 @@ pub fn pack(
 
         // Add manifest.json to archive
         let manifest_json = serde_json::to_vec_pretty(engram_manifest.as_ref().unwrap())?;
-        writer.add_file_with_compression("manifest.json", &manifest_json, CompressionMethod::None)?;
+        writer.add_file_with_compression(
+            "manifest.json",
+            &manifest_json,
+            CompressionMethod::None,
+        )?;
         println!("  Added: manifest.json");
     }
 
@@ -87,7 +91,10 @@ pub fn pack(
             .sort_by_file_name()
         {
             let entry = entry.with_context(|| {
-                format!("Failed to read directory entry in `{}`", source_path.display())
+                format!(
+                    "Failed to read directory entry in `{}`",
+                    source_path.display()
+                )
             })?;
 
             if entry.file_type().is_file() {
@@ -96,7 +103,10 @@ pub fn pack(
                     .path()
                     .strip_prefix(source_path)
                     .with_context(|| {
-                        format!("Failed to get relative path for `{}`", entry.path().display())
+                        format!(
+                            "Failed to get relative path for `{}`",
+                            entry.path().display()
+                        )
                     })?
                     .to_str()
                     .context("Invalid file path")?;
@@ -114,7 +124,10 @@ pub fn pack(
 
         count
     } else {
-        anyhow::bail!("Path is neither a file nor a directory: {}", source_path.display());
+        anyhow::bail!(
+            "Path is neither a file nor a directory: {}",
+            source_path.display()
+        );
     };
 
     // Finalize the archive

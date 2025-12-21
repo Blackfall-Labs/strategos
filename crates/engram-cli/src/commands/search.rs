@@ -6,12 +6,7 @@ use std::fs::read_to_string;
 use std::io::Write;
 use std::path::Path;
 
-pub fn search(
-    pattern: &str,
-    path: &Path,
-    in_archive: bool,
-    case_insensitive: bool,
-) -> Result<()> {
+pub fn search(pattern: &str, path: &Path, in_archive: bool, case_insensitive: bool) -> Result<()> {
     if in_archive {
         // Search inside archive
         search_in_archive(pattern, path, case_insensitive)

@@ -16,8 +16,12 @@ pub fn extract(
     reader.initialize()?;
 
     // Create output directory
-    fs::create_dir_all(output_dir)
-        .with_context(|| format!("Failed to create output directory `{}`", output_dir.display()))?;
+    fs::create_dir_all(output_dir).with_context(|| {
+        format!(
+            "Failed to create output directory `{}`",
+            output_dir.display()
+        )
+    })?;
 
     // Determine which files to extract
     let files_to_extract: Vec<String> = if let Some(specific_files) = files {
@@ -30,7 +34,8 @@ pub fn extract(
 
     for file_path in files_to_extract {
         // Read file from archive
-        let data = reader.read_file(&file_path)
+        let data = reader
+            .read_file(&file_path)
             .with_context(|| format!("Failed to read file `{}` from archive", file_path))?;
 
         // Create output path

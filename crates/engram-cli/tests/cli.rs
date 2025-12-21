@@ -8,7 +8,9 @@ use tempfile::TempDir;
 fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = cargo_bin_cmd!("engram");
 
-    cmd.arg("search").arg("foobar").arg("test/file/doesnt/exist");
+    cmd.arg("search")
+        .arg("foobar")
+        .arg("test/file/doesnt/exist");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("Could not read file"));
@@ -85,7 +87,8 @@ fn list_archive() -> Result<(), Box<dyn std::error::Error>> {
 
     // Pack the directory
     let mut pack_cmd = cargo_bin_cmd!("engram");
-    pack_cmd.arg("pack")
+    pack_cmd
+        .arg("pack")
         .arg(&source_dir)
         .arg("-o")
         .arg(&output_archive);
@@ -95,7 +98,8 @@ fn list_archive() -> Result<(), Box<dyn std::error::Error>> {
     let mut list_cmd = cargo_bin_cmd!("engram");
     list_cmd.arg("list").arg(&output_archive);
 
-    list_cmd.assert()
+    list_cmd
+        .assert()
         .success()
         .stdout(predicate::str::contains("alpha.txt"))
         .stdout(predicate::str::contains("beta.txt"));
@@ -117,7 +121,8 @@ fn info_archive_basic() -> Result<(), Box<dyn std::error::Error>> {
 
     // Pack the directory
     let mut pack_cmd = cargo_bin_cmd!("engram");
-    pack_cmd.arg("pack")
+    pack_cmd
+        .arg("pack")
         .arg(&source_dir)
         .arg("-o")
         .arg(&output_archive);
@@ -127,7 +132,8 @@ fn info_archive_basic() -> Result<(), Box<dyn std::error::Error>> {
     let mut info_cmd = cargo_bin_cmd!("engram");
     info_cmd.arg("info").arg(&output_archive);
 
-    info_cmd.assert()
+    info_cmd
+        .assert()
         .success()
         .stdout(predicate::str::contains("Archive:"))
         .stdout(predicate::str::contains("Format Version:"))
@@ -150,7 +156,8 @@ fn info_archive_inspect() -> Result<(), Box<dyn std::error::Error>> {
 
     // Pack the directory
     let mut pack_cmd = cargo_bin_cmd!("engram");
-    pack_cmd.arg("pack")
+    pack_cmd
+        .arg("pack")
         .arg(&source_dir)
         .arg("-o")
         .arg(&output_archive);
@@ -160,7 +167,8 @@ fn info_archive_inspect() -> Result<(), Box<dyn std::error::Error>> {
     let mut info_cmd = cargo_bin_cmd!("engram");
     info_cmd.arg("info").arg(&output_archive).arg("--inspect");
 
-    info_cmd.assert()
+    info_cmd
+        .assert()
         .success()
         .stdout(predicate::str::contains("Detailed File Information:"))
         .stdout(predicate::str::contains("Compression:"))
@@ -203,7 +211,10 @@ fn search_finds_pattern() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
     let test_file = temp_dir.path().join("search_test.txt");
 
-    fs::write(&test_file, "First line\nSecond line with PATTERN\nThird line")?;
+    fs::write(
+        &test_file,
+        "First line\nSecond line with PATTERN\nThird line",
+    )?;
 
     let mut cmd = cargo_bin_cmd!("engram");
     cmd.arg("search").arg("PATTERN").arg(&test_file);
@@ -226,9 +237,7 @@ fn search_pattern_not_found() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = cargo_bin_cmd!("engram");
     cmd.arg("search").arg("NOTFOUND").arg(&test_file);
 
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::is_empty());
+    cmd.assert().success().stdout(predicate::str::is_empty());
 
     Ok(())
 }
@@ -269,7 +278,8 @@ fn pack_nested_directories() -> Result<(), Box<dyn std::error::Error>> {
     let mut list_cmd = cargo_bin_cmd!("engram");
     list_cmd.arg("list").arg(&output_archive);
 
-    list_cmd.assert()
+    list_cmd
+        .assert()
         .success()
         .stdout(predicate::str::contains("root.txt"))
         .stdout(predicate::str::contains("subdir/sub.txt"))

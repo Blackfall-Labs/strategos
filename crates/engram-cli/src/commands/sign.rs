@@ -6,11 +6,7 @@ use std::path::Path;
 
 use crate::crypto::keys::KeyPair;
 
-pub fn sign(
-    archive_path: &Path,
-    private_key_path: &Path,
-    signer: Option<&str>,
-) -> Result<()> {
+pub fn sign(archive_path: &Path, private_key_path: &Path, signer: Option<&str>) -> Result<()> {
     println!("Signing: {}", archive_path.display());
 
     // Load signing key
@@ -20,7 +16,8 @@ pub fn sign(
     let mut reader = ArchiveReader::open(archive_path)?;
     reader.initialize()?;
 
-    let manifest_value = reader.read_manifest()?
+    let manifest_value = reader
+        .read_manifest()?
         .context("No manifest found in archive")?;
 
     // Parse manifest
@@ -31,7 +28,10 @@ pub fn sign(
 
     println!("  Signature added");
     println!("  Signer: {}", signer.unwrap_or("(anonymous)"));
-    println!("  Public key: {}", hex::encode(keypair.verifying_key().to_bytes()));
+    println!(
+        "  Public key: {}",
+        hex::encode(keypair.verifying_key().to_bytes())
+    );
 
     // TODO: Write updated manifest back to archive
     println!("\nWarning: Manifest update not yet fully implemented");

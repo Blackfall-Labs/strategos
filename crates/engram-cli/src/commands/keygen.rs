@@ -1,8 +1,8 @@
 //! Key generation command
 
+use crate::crypto::keys::KeyPair;
 use anyhow::Result;
 use std::path::PathBuf;
-use crate::crypto::keys::KeyPair;
 
 /// Generate a new Ed25519 keypair
 pub fn keygen(private_key_path: &PathBuf, public_key_path: &PathBuf) -> Result<()> {

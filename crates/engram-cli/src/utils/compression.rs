@@ -9,7 +9,10 @@ pub fn parse_compression(s: &str) -> Result<CompressionMethod> {
         "none" => Ok(CompressionMethod::None),
         "lz4" => Ok(CompressionMethod::Lz4),
         "zstd" => Ok(CompressionMethod::Zstd),
-        _ => Err(anyhow::anyhow!("Invalid compression method: '{}'. Use: none, lz4, zstd", s)),
+        _ => Err(anyhow::anyhow!(
+            "Invalid compression method: '{}'. Use: none, lz4, zstd",
+            s
+        )),
     }
 }
 
@@ -28,10 +31,22 @@ mod tests {
 
     #[test]
     fn test_parse_compression() {
-        assert!(matches!(parse_compression("none").unwrap(), CompressionMethod::None));
-        assert!(matches!(parse_compression("lz4").unwrap(), CompressionMethod::Lz4));
-        assert!(matches!(parse_compression("zstd").unwrap(), CompressionMethod::Zstd));
-        assert!(matches!(parse_compression("LZ4").unwrap(), CompressionMethod::Lz4));
+        assert!(matches!(
+            parse_compression("none").unwrap(),
+            CompressionMethod::None
+        ));
+        assert!(matches!(
+            parse_compression("lz4").unwrap(),
+            CompressionMethod::Lz4
+        ));
+        assert!(matches!(
+            parse_compression("zstd").unwrap(),
+            CompressionMethod::Zstd
+        ));
+        assert!(matches!(
+            parse_compression("LZ4").unwrap(),
+            CompressionMethod::Lz4
+        ));
         assert!(parse_compression("invalid").is_err());
     }
 

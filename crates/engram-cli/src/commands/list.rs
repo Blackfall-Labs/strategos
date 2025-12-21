@@ -43,11 +43,7 @@ pub fn list(archive_path: &Path, long: bool, databases: bool) -> Result<()> {
 
                 println!(
                     "{:50} {:>10} {:>10} {:>6} ({:.1}%)",
-                    file_path,
-                    entry.uncompressed_size,
-                    entry.compressed_size,
-                    compression,
-                    ratio
+                    file_path, entry.uncompressed_size, entry.compressed_size, compression, ratio
                 );
             }
         } else {

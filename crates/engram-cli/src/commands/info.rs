@@ -24,7 +24,10 @@ pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: boo
     // Get header information (clone to avoid borrow conflicts)
     let header = reader.header().clone();
     println!("Archive: {}", archive_path.display());
-    println!("Format Version: {}.{}", header.version_major, header.version_minor);
+    println!(
+        "Format Version: {}.{}",
+        header.version_major, header.version_minor
+    );
     println!("Total Files: {}", header.entry_count);
     println!("Content Version: {}", header.content_version);
 
@@ -114,7 +117,10 @@ pub fn info(archive_path: &Path, inspect: bool, verify: bool, manifest_only: boo
         println!("\n{:-<60}", "");
         println!("Archive Structure:");
         println!("{:-<60}", "");
-        println!("Central Directory Offset: {}", header.central_directory_offset);
+        println!(
+            "Central Directory Offset: {}",
+            header.central_directory_offset
+        );
         println!("Central Directory Size: {}", header.central_directory_size);
         println!("Header CRC: {:08X}", header.header_crc);
     }

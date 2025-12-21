@@ -216,7 +216,11 @@ fn main() -> Result<()> {
             )?;
         }
 
-        Commands::List { path, long, databases } => {
+        Commands::List {
+            path,
+            long,
+            databases,
+        } => {
             commands::list::list(&path, long, databases)?;
         }
 
