@@ -1,18 +1,23 @@
 [package]
-name = "engram-cli"
-version = "0.3.0"
+name = "strategos"
+version = "0.1.0"
 edition = "2024"
-authors = ["Engram Contributors"]
-license = "MIT"
-repository = "https://github.com/blackfall-labs/engram-cli"
+authors = ["Blackfall Labs"]
+license = "MIT OR Apache-2.0"
+description = "Universal archive management CLI for Engram, Cartridge, DataSpool, and DataCard formats"
+repository = "https://github.com/blackfall-labs/strategos"
 
 [[bin]]
-name = "engram"
+name = "strategos"
 path = "src/main.rs"
 
 [dependencies]
-# Engram core library (unified package)
+# Archive format libraries
 engram-rs = "1.0.0"
+cartridge-rs = { path = "../cartridge-rs" }
+dataspool-rs = { path = "../dataspool-rs" }
+datacard-rs = { path = "../datacard-rs" }
+bytepunch-rs = { path = "../bytepunch-rs" }
 
 # CLI dependencies
 clap = { version = "4.0", features = ["derive"] }
@@ -35,6 +40,7 @@ tracing-subscriber = "0.1"
 
 # Database (for query command)
 rusqlite = { version = "0.32", features = ["bundled"] }
+tempfile = "3.8"
 
 [dev-dependencies]
 assert_cmd = "2.0.14"
