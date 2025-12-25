@@ -1,4 +1,7 @@
-//! Engram CLI - Command-line tool for managing Engram archives
+//! Strategos - Universal archive management CLI
+//!
+//! Strategos provides unified command-line interface for managing multiple
+//! archive formats: Engram, Cartridge, DataSpool, and DataCard.
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -6,12 +9,22 @@ use std::path::PathBuf;
 
 mod commands;
 mod crypto;
+mod formats;
 mod manifest;
 mod utils;
 
 #[derive(Parser)]
-#[command(name = "engram")]
-#[command(about = "A CLI tool for managing Engram archives", version, long_about = None)]
+#[command(name = "strategos")]
+#[command(
+    about = "Universal archive management CLI for Engram, Cartridge, DataSpool, and DataCard",
+    version,
+    long_about = "Strategos provides a unified interface for working with multiple archive formats.\n\n\
+                  Supported formats:\n  \
+                  - Engram (.eng): Immutable signed archives\n  \
+                  - Cartridge (.cart): Mutable page-based archives\n  \
+                  - DataSpool (.spool): Append-only item collections\n  \
+                  - DataCard (.card): Compressed CML documents"
+)]
 struct CliArguments {
     #[command(subcommand)]
     command: Commands,
@@ -185,6 +198,128 @@ enum Commands {
         #[arg(short, long)]
         case_insensitive: bool,
     },
+
+    // === Cartridge-specific commands ===
+    /// Create a new Cartridge archive (mutable)
+    CartridgeCreate {
+        /// Slug (kebab-case identifier)
+        slug: String,
+
+        /// Title (human-readable name)
+        title: String,
+
+        /// Output path (optional, defaults to slug.cart)
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+
+    /// Write a file to a Cartridge archive
+    CartridgeWrite {
+        /// Cartridge archive path
+        archive: PathBuf,
+
+        /// File path within archive
+        file_path: String,
+
+        /// Source file to write
+        source: PathBuf,
+    },
+
+    /// Delete a file from a Cartridge archive
+    CartridgeDelete {
+        /// Cartridge archive path
+        archive: PathBuf,
+
+        /// File path to delete
+        file_path: String,
+    },
+
+    /// Create a snapshot of a Cartridge
+    CartridgeSnapshot {
+        /// Cartridge archive path
+        archive: PathBuf,
+
+        /// Snapshot name
+        #[arg(short, long)]
+        name: String,
+
+        /// Snapshot description
+        #[arg(short, long)]
+        description: String,
+
+        /// Snapshot directory
+        #[arg(short = 'd', long)]
+        snapshot_dir: PathBuf,
+    },
+
+    // === DataSpool-specific commands ===
+    /// Build a new DataSpool from card files
+    DataSpoolBuild {
+        /// Output spool path
+        #[arg(short, long)]
+        output: PathBuf,
+
+        /// Card files to add
+        cards: Vec<String>,
+    },
+
+    /// Append cards to an existing DataSpool
+    DataSpoolAppend {
+        /// Spool path
+        spool: PathBuf,
+
+        /// Card files to append
+        cards: Vec<String>,
+    },
+
+    /// Show DataSpool index
+    DataSpoolIndex {
+        /// Spool path
+        spool: PathBuf,
+    },
+
+    // === DataCard-specific commands ===
+    /// Compress CML to DataCard
+    DataCardCompress {
+        /// CML input file
+        cml: PathBuf,
+
+        /// Output card path
+        #[arg(short, long)]
+        output: PathBuf,
+
+        /// BytePunch dictionary path
+        #[arg(short, long)]
+        dict: PathBuf,
+
+        /// Document ID
+        #[arg(long)]
+        id: String,
+
+        /// Add checksum
+        #[arg(long)]
+        checksum: bool,
+    },
+
+    /// Decompress DataCard to CML
+    DataCardDecompress {
+        /// Card input file
+        card: PathBuf,
+
+        /// Output CML path
+        #[arg(short, long)]
+        output: PathBuf,
+
+        /// BytePunch dictionary path
+        #[arg(short, long)]
+        dict: PathBuf,
+    },
+
+    /// Validate a DataCard
+    DataCardValidate {
+        /// Card path
+        card: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -221,7 +356,8 @@ fn main() -> Result<()> {
             long,
             databases,
         } => {
-            commands::list::list(&path, long, databases)?;
+            // Use new format-agnostic shared command
+            commands::shared::list(&path, long, databases)?;
         }
 
         Commands::Info {
@@ -230,24 +366,27 @@ fn main() -> Result<()> {
             verify,
             manifest,
         } => {
-            commands::info::info(&path, inspect, verify, manifest)?;
+            // Use new format-agnostic shared command
+            commands::shared::info(&path, inspect, verify, manifest)?;
         }
 
         Commands::Extract {
             archive,
             output,
             files,
-            decrypt,
+            decrypt: _decrypt,
         } => {
-            commands::extract::extract(&archive, &output, files.as_deref(), decrypt)?;
+            // Use new format-agnostic shared command
+            commands::shared::extract(&archive, &output, files)?;
         }
 
         Commands::Verify {
             archive,
-            public_key,
-            check_hashes,
+            public_key: _public_key,
+            check_hashes: _check_hashes,
         } => {
-            commands::verify::verify(&archive, public_key.as_deref(), check_hashes)?;
+            // Use new format-agnostic shared command
+            commands::shared::verify(&archive)?;
         }
 
         Commands::Sign {
@@ -284,10 +423,73 @@ fn main() -> Result<()> {
         Commands::Search {
             pattern,
             path,
-            in_archive,
+            in_archive: _in_archive,
             case_insensitive,
         } => {
-            commands::search::search(&pattern, &path, in_archive, case_insensitive)?;
+            // Use new format-agnostic shared command
+            commands::shared::search(&path, &pattern, case_insensitive)?;
+        }
+
+        // Cartridge commands
+        Commands::CartridgeCreate {
+            slug,
+            title,
+            output,
+        } => {
+            commands::cartridge::create(&slug, &title, output.as_deref())?;
+        }
+
+        Commands::CartridgeWrite {
+            archive,
+            file_path,
+            source,
+        } => {
+            commands::cartridge::write(&archive, &file_path, &source)?;
+        }
+
+        Commands::CartridgeDelete { archive, file_path } => {
+            commands::cartridge::delete(&archive, &file_path)?;
+        }
+
+        Commands::CartridgeSnapshot {
+            archive,
+            name,
+            description,
+            snapshot_dir,
+        } => {
+            commands::cartridge::snapshot(&archive, name, description, &snapshot_dir)?;
+        }
+
+        // DataSpool commands
+        Commands::DataSpoolBuild { output, cards } => {
+            commands::dataspool::build(&output, &cards)?;
+        }
+
+        Commands::DataSpoolAppend { spool, cards } => {
+            commands::dataspool::append(&spool, &cards)?;
+        }
+
+        Commands::DataSpoolIndex { spool } => {
+            commands::dataspool::show_index(&spool)?;
+        }
+
+        // DataCard commands
+        Commands::DataCardCompress {
+            cml,
+            output,
+            dict,
+            id,
+            checksum,
+        } => {
+            commands::datacard::compress(&cml, &output, &dict, &id, checksum)?;
+        }
+
+        Commands::DataCardDecompress { card, output, dict } => {
+            commands::datacard::decompress(&card, &output, &dict)?;
+        }
+
+        Commands::DataCardValidate { card } => {
+            commands::datacard::validate(&card)?;
         }
     }
 
