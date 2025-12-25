@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide covers all methods for installing Engram CLI on different platforms.
+This guide covers all methods for installing Strategos on different platforms.
 
 ## Table of Contents
 
@@ -17,14 +17,14 @@ This guide covers all methods for installing Engram CLI on different platforms.
 ### Linux / macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blackfall-labs/strategos/main/scripts/install.sh | bash
 ```
 
 This will:
 1. Detect your platform and architecture automatically
 2. Download the latest release binary
 3. Verify the SHA-256 checksum
-4. Install to `~/.local/bin/engram`
+4. Install to `~/.local/bin/strategos`
 5. Optionally add the directory to your PATH
 
 ### Windows
@@ -32,13 +32,13 @@ This will:
 Open PowerShell and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/blackfall-labs/strategos/main/scripts/install.ps1 | iex
 ```
 
 This will:
 1. Download the latest Windows binary
 2. Verify the SHA-256 checksum
-3. Install to `%LOCALAPPDATA%\engram\bin\engram.exe`
+3. Install to `%LOCALAPPDATA%\strategos\bin\strategos.exe`
 4. Add the directory to your user PATH
 
 ## Install via Cargo
@@ -46,32 +46,32 @@ This will:
 If you have Rust installed, you can install directly from Git:
 
 ```bash
-cargo install --git https://github.com/blackfall-labs/engram-cli engram-cli
+cargo install --git https://github.com/blackfall-labs/strategos strategos
 ```
 
-This will compile from source and install to `~/.cargo/bin/engram` (or `%USERPROFILE%\.cargo\bin\engram.exe` on Windows).
+This will compile from source and install to `~/.cargo/bin/strategos` (or `%USERPROFILE%\.cargo\bin\strategos.exe` on Windows).
 
 ### Prerequisites
 
-- Rust 1.75 or later (install from [rustup.rs](https://rustup.rs))
+- Rust 1.75 or later (2024 edition) - install from [rustup.rs](https://rustup.rs)
 
 ## Pre-built Binaries
 
-Download binaries from the [GitHub Releases page](https://github.com/blackfall-labs/engram-cli/releases/latest).
+Download binaries from the [GitHub Releases page](https://github.com/blackfall-labs/strategos/releases/latest).
 
 ### Windows (x86_64)
 
-1. Download `engram-Windows-x86_64.exe`
-2. Rename to `engram.exe` (optional, for convenience)
+1. Download `strategos-Windows-x86_64.exe`
+2. Rename to `strategos.exe` (optional, for convenience)
 3. Move to a directory in your PATH, or add the directory to PATH
 
 **Example:**
 ```powershell
 # Download
-Invoke-WebRequest -Uri "https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Windows-x86_64.exe" -OutFile "engram.exe"
+Invoke-WebRequest -Uri "https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Windows-x86_64.exe" -OutFile "strategos.exe"
 
 # Move to a directory in PATH (e.g., C:\Users\YourName\bin)
-Move-Item engram.exe C:\Users\$env:USERNAME\bin\
+Move-Item strategos.exe C:\Users\$env:USERNAME\bin\
 
 # Add to PATH (if not already)
 $env:Path += ";C:\Users\$env:USERNAME\bin"
@@ -81,69 +81,69 @@ $env:Path += ";C:\Users\$env:USERNAME\bin"
 
 ```bash
 # Download
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-x86_64
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Darwin-x86_64
 
 # Make executable
-chmod +x engram-Darwin-x86_64
+chmod +x strategos-Darwin-x86_64
 
 # Move to /usr/local/bin (or any directory in PATH)
-sudo mv engram-Darwin-x86_64 /usr/local/bin/engram
+sudo mv strategos-Darwin-x86_64 /usr/local/bin/strategos
 ```
 
 ### macOS Apple Silicon (ARM64)
 
 ```bash
 # Download
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-aarch64
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Darwin-aarch64
 
 # Make executable
-chmod +x engram-Darwin-aarch64
+chmod +x strategos-Darwin-aarch64
 
 # Move to /usr/local/bin (or any directory in PATH)
-sudo mv engram-Darwin-aarch64 /usr/local/bin/engram
+sudo mv strategos-Darwin-aarch64 /usr/local/bin/strategos
 ```
 
 ### Linux x86_64 (MUSL - Static Binary, Recommended)
 
 ```bash
 # Download
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64-musl
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Linux-x86_64-musl
 
 # Make executable
-chmod +x engram-Linux-x86_64-musl
+chmod +x strategos-Linux-x86_64-musl
 
 # Move to /usr/local/bin (or ~/.local/bin for user install)
-sudo mv engram-Linux-x86_64-musl /usr/local/bin/engram
+sudo mv strategos-Linux-x86_64-musl /usr/local/bin/strategos
 
 # Or for user install
 mkdir -p ~/.local/bin
-mv engram-Linux-x86_64-musl ~/.local/bin/engram
+mv strategos-Linux-x86_64-musl ~/.local/bin/strategos
 ```
 
 ### Linux x86_64 (GNU libc)
 
 ```bash
 # Download
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Linux-x86_64
 
 # Make executable
-chmod +x engram-Linux-x86_64
+chmod +x strategos-Linux-x86_64
 
 # Move to /usr/local/bin (or ~/.local/bin for user install)
-sudo mv engram-Linux-x86_64 /usr/local/bin/engram
+sudo mv strategos-Linux-x86_64 /usr/local/bin/strategos
 ```
 
 ### Linux ARM64
 
 ```bash
 # Download
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-aarch64
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Linux-aarch64
 
 # Make executable
-chmod +x engram-Linux-aarch64
+chmod +x strategos-Linux-aarch64
 
 # Move to /usr/local/bin (or ~/.local/bin for user install)
-sudo mv engram-Linux-aarch64 /usr/local/bin/engram
+sudo mv strategos-Linux-aarch64 /usr/local/bin/strategos
 ```
 
 ## Building from Source
@@ -152,13 +152,14 @@ sudo mv engram-Linux-aarch64 /usr/local/bin/engram
 
 - Rust 1.75 or later (2024 edition)
 - Git
+- Local dependencies (cartridge-rs, dataspool-rs, datacard-rs, bytepunch-rs)
 
 ### Steps
 
-1. **Clone the repository:**
+1. **Clone the Blackfall Labs monorepo:**
    ```bash
-   git clone https://github.com/blackfall-labs/engram-cli
-   cd engram-cli
+   git clone https://github.com/blackfall-labs/blackfall-labs
+   cd blackfall-labs/strategos
    ```
 
 2. **Build:**
@@ -167,15 +168,15 @@ sudo mv engram-Linux-aarch64 /usr/local/bin/engram
    ```
 
 3. **Binary location:**
-   - Linux/macOS: `target/release/engram`
-   - Windows: `target\release\engram.exe`
+   - Linux/macOS: `target/release/strategos`
+   - Windows: `target\release\strategos.exe`
 
 4. **Install (optional):**
    ```bash
-   cargo install --path crates/engram-cli
+   cargo install --path .
    ```
 
-   This installs to `~/.cargo/bin/engram` or `%USERPROFILE%\.cargo\bin\engram.exe`.
+   This installs to `~/.cargo/bin/strategos` or `%USERPROFILE%\.cargo\bin\strategos.exe`.
 
 ### Building for Multiple Platforms
 
@@ -201,7 +202,7 @@ Binaries will be in the `dist/` directory.
 
 ```bash
 # Install via quick install script
-curl -fsSL https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blackfall-labs/strategos/main/scripts/install.sh | bash
 
 # Add to PATH if not already
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -212,7 +213,7 @@ source ~/.bashrc
 
 ```bash
 # Install via quick install script
-curl -fsSL https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blackfall-labs/strategos/main/scripts/install.sh | bash
 
 # Add to PATH if not already
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -223,7 +224,7 @@ source ~/.bashrc
 
 ```bash
 # Install via Cargo (AUR package coming soon)
-cargo install --git https://github.com/blackfall-labs/engram-cli engram-cli
+cargo install --git https://github.com/blackfall-labs/strategos strategos
 ```
 
 ### macOS
@@ -256,13 +257,13 @@ After installation, verify it works:
 
 ```bash
 # Check version
-engram --version
+strategos --version
 
 # Show help
-engram --help
+strategos --help
 
 # Test with a simple command
-engram keygen --private-key test.key --public-key test.pub
+strategos keygen --private-key test.key --public-key test.pub
 ```
 
 ## Troubleshooting
@@ -291,16 +292,16 @@ $env:Path
 
 **Linux/macOS:**
 ```bash
-chmod +x /path/to/engram
+chmod +x /path/to/strategos
 ```
 
 ### Binary doesn't run on Linux
 
 If you see "No such file or directory" on Linux, try the MUSL build (static binary):
 ```bash
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64-musl
-chmod +x engram-Linux-x86_64-musl
-sudo mv engram-Linux-x86_64-musl /usr/local/bin/engram
+curl -LO https://github.com/blackfall-labs/strategos/releases/latest/download/strategos-Linux-x86_64-musl
+chmod +x strategos-Linux-x86_64-musl
+sudo mv strategos-Linux-x86_64-musl /usr/local/bin/strategos
 ```
 
 ### Build from source fails
@@ -308,7 +309,24 @@ sudo mv engram-Linux-x86_64-musl /usr/local/bin/engram
 Ensure you have:
 - Latest Rust: `rustup update`
 - Git installed
-- Internet connection (for dependencies)
+- All local dependencies available (cartridge-rs, dataspool-rs, etc.)
+- Internet connection (for crates.io dependencies)
+
+### Missing local dependencies
+
+Strategos requires several local dependencies from the Blackfall Labs ecosystem:
+```bash
+# Make sure you cloned the full monorepo, not just strategos
+git clone https://github.com/blackfall-labs/blackfall-labs
+cd blackfall-labs
+
+# All dependencies should be in sibling directories:
+# - cartridge-rs/
+# - dataspool-rs/
+# - datacard-rs/
+# - bytepunch-rs/
+# - engram-rs/
+```
 
 ## Uninstallation
 
@@ -316,12 +334,12 @@ Ensure you have:
 
 **Linux/macOS:**
 ```bash
-rm ~/.local/bin/engram
+rm ~/.local/bin/strategos
 ```
 
 **Windows:**
 ```powershell
-Remove-Item "$env:LOCALAPPDATA\engram" -Recurse -Force
+Remove-Item "$env:LOCALAPPDATA\strategos" -Recurse -Force
 ```
 
 Then remove from PATH manually if needed.
@@ -329,7 +347,7 @@ Then remove from PATH manually if needed.
 ### Cargo Install
 
 ```bash
-cargo uninstall engram-cli
+cargo uninstall strategos
 ```
 
 ### Manual Install
@@ -339,13 +357,15 @@ Simply delete the binary from wherever you placed it.
 ## Next Steps
 
 After installation:
-1. Read the [README](README.md) for usage examples
-2. Check out [CONTRIBUTING](CONTRIBUTING.md) if you want to contribute
-3. Report issues at [GitHub Issues](https://github.com/blackfall-labs/engram-cli/issues)
+1. Read the [README](README.md) for usage examples and command reference
+2. Check out the [format compatibility matrix](README.md#-format-compatibility-matrix)
+3. Try the [workflow examples](README.md#-workflow-examples)
+4. Check [CONTRIBUTING](CONTRIBUTING.md) if you want to contribute
+5. Report issues at [GitHub Issues](https://github.com/blackfall-labs/strategos/issues)
 
 ## Support
 
 For help:
 - Check the [README](README.md)
-- Open an [issue](https://github.com/blackfall-labs/engram-cli/issues)
+- Open an [issue](https://github.com/blackfall-labs/strategos/issues)
 - Consult the [CLAUDE.md](CLAUDE.md) for developer documentation

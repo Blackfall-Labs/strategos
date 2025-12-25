@@ -1,494 +1,813 @@
-# engram-cli
+# Strategos - Universal Archive Management CLI
 
-[![CI](https://github.com/blackfall-labs/engram-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/blackfall-labs/engram-cli/actions/workflows/ci.yml)
-[![Release](https://github.com/blackfall-labs/engram-cli/actions/workflows/release.yml/badge.svg)](https://github.com/blackfall-labs/engram-cli/actions/workflows/release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Version:** 0.1.0
+**License:** MIT OR Apache-2.0
 
-A comprehensive CLI tool for managing Engram archives - create, inspect, extract, sign, and query `.eng` archive files.
+Strategos is a unified command-line interface for managing multiple archive formats used across the Blackfall Labs ecosystem. It provides format-agnostic commands that automatically detect and handle Engram, Cartridge, DataSpool, and DataCard archives.
 
-## Supported Platforms
-
-| Platform | Architecture | Binary Name |
-|----------|-------------|-------------|
-| Windows | x86_64 | `engram-Windows-x86_64.exe` |
-| macOS | x86_64 (Intel) | `engram-Darwin-x86_64` |
-| macOS | aarch64 (Apple Silicon) | `engram-Darwin-aarch64` |
-| Linux | x86_64 (GNU) | `engram-Linux-x86_64` |
-| Linux | x86_64 (MUSL) | `engram-Linux-x86_64-musl` |
-| Linux | aarch64 (ARM64) | `engram-Linux-aarch64` |
-
-## Features
-
-- **Pack**: Create Engram archives from files or directories
-- **Extract**: Extract files from archives
-- **List**: Display contents of archives
-- **Info**: Show metadata and statistics
-- **Sign**: Cryptographically sign archives with Ed25519
-- **Verify**: Verify signatures and file integrity
-- **Keygen**: Generate Ed25519 keypairs for signing
-- **Query**: Execute SQL queries on embedded SQLite databases
-- **Search**: Search for text patterns within archives
-
-## Installation
-
-### Quick Install (Recommended)
-
-**Linux / macOS:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.sh | bash
-```
-
-**Windows (PowerShell):**
-```powershell
-irm https://raw.githubusercontent.com/blackfall-labs/engram-cli/main/scripts/install.ps1 | iex
-```
-
-### Install via Cargo
-
-If you have Rust installed:
+## 🚀 Quick Start
 
 ```bash
-cargo install --git https://github.com/blackfall-labs/engram-cli engram-cli
+# Auto-detects format and shows info
+strategos info archive.eng      # Engram
+strategos info data.cart        # Cartridge
+strategos list items.spool      # DataSpool
+strategos extract doc.card --output ./    # DataCard
+
+# Format-specific commands
+strategos pack ./data --output archive.eng
+strategos cartridge-create "mydata" "My Data"
+strategos data-spool-build --output items.spool card1.card card2.card
 ```
 
-### Pre-built Binaries
+## 📦 Supported Formats
 
-Download pre-built binaries from the [Releases page](https://github.com/blackfall-labs/engram-cli/releases/latest):
+| Format        | Ext      | Type        | Use Case                                           |
+| ------------- | -------- | ----------- | -------------------------------------------------- |
+| **Engram**    | `.eng`   | Immutable   | Cryptographically signed archives for preservation |
+| **Cartridge** | `.cart`  | Mutable     | Working archives with in-place modifications       |
+| **DataSpool** | `.spool` | Append-only | Item collections with byte-offset index            |
+| **DataCard**  | `.card`  | Immutable   | BytePunch-compressed CML documents                 |
 
-#### Windows
-- Download `engram-Windows-x86_64.exe`
-- Rename to `engram.exe`
-- Add to your PATH or place in a directory that's already in PATH
+## 🔧 Installation
 
-#### macOS
-**Intel (x86_64):**
+### From Source (Recommended)
+
 ```bash
-# Download and install
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-x86_64
-chmod +x engram-Darwin-x86_64
-sudo mv engram-Darwin-x86_64 /usr/local/bin/engram
+# Clone repository
+git clone https://github.com/blackfall-labs/strategos
+cd strategos
+
+# Build release binary
+cargo build --release
+
+# Binary location
+target/release/strategos.exe  # Windows
+target/release/strategos      # Linux/macOS
+
+# Optional: Install to cargo bin
+cargo install --path .
+
+# Or copy to a directory in your PATH
+# Windows
+copy target\release\strategos.exe %LOCALAPPDATA%\Programs\
+
+# Linux/macOS
+sudo cp target/release/strategos /usr/local/bin/
+# or for user install
+mkdir -p ~/.local/bin
+cp target/release/strategos ~/.local/bin/
 ```
 
-**Apple Silicon (ARM64):**
-```bash
-# Download and install
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Darwin-aarch64
-chmod +x engram-Darwin-aarch64
-sudo mv engram-Darwin-aarch64 /usr/local/bin/engram
-```
+### Prerequisites
 
-#### Linux
-
-**x86_64 (recommended - static binary):**
-```bash
-# Download and install
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64-musl
-chmod +x engram-Linux-x86_64-musl
-sudo mv engram-Linux-x86_64-musl /usr/local/bin/engram
-```
-
-**x86_64 (GNU libc):**
-```bash
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-x86_64
-chmod +x engram-Linux-x86_64
-sudo mv engram-Linux-x86_64 /usr/local/bin/engram
-```
-
-**ARM64:**
-```bash
-curl -LO https://github.com/blackfall-labs/engram-cli/releases/latest/download/engram-Linux-aarch64
-chmod +x engram-Linux-aarch64
-sudo mv engram-Linux-aarch64 /usr/local/bin/engram
-```
+- **Rust:** 2024 edition (Rust 1.75+)
+- **Platform:** Windows, Linux, or macOS
 
 ### Verify Installation
 
-After installation, verify it works:
+```bash
+# Check version
+strategos --version
+
+# Show help
+strategos --help
+
+# Test with a simple command
+strategos keygen --private-key test.key --public-key test.pub
+```
+
+For detailed installation instructions including pre-built binaries and platform-specific guides, see [INSTALLATION.md](INSTALLATION.md).
+
+## 🎯 Format Compatibility Matrix
+
+| Command                | Engram | Cartridge | DataSpool | DataCard | Notes                              |
+| ---------------------- | ------ | --------- | --------- | -------- | ---------------------------------- |
+| **Universal Commands** |
+| `info`                 | ✅     | ✅        | ✅        | ✅       | Auto-detects format                |
+| `list`                 | ✅     | ✅        | ✅        | ✅       | Shows files/items                  |
+| `extract`              | ✅     | ✅        | ✅        | ✅       | Extracts contents                  |
+| `verify`               | ✅     | ✅        | ✅        | ✅       | Format-specific validation         |
+| `search`               | ✅     | ✅        | ✅        | ⚠️       | DataCard: searches compressed data |
+| `query`                | ✅     | ✅        | ❌        | ❌       | Requires SQLite VFS                |
+| **Engram-Specific**    |
+| `pack`                 | ✅     | ❌        | ❌        | ❌       | Create immutable archives          |
+| `sign`                 | ✅     | ❌        | ❌        | ❌       | Ed25519 signatures                 |
+| `keygen`               | ✅     | ❌        | ❌        | ❌       | Generate keypairs                  |
+| **Cartridge-Specific** |
+| `cartridge-create`     | ❌     | ✅        | ❌        | ❌       | Create mutable archive             |
+| `cartridge-write`      | ❌     | ✅        | ❌        | ❌       | Write/update files                 |
+| `cartridge-delete`     | ❌     | ✅        | ❌        | ❌       | Delete files                       |
+| `cartridge-snapshot`   | ❌     | ✅        | ❌        | ❌       | Create snapshots                   |
+| **DataSpool-Specific** |
+| `data-spool-build`     | ❌     | ❌        | ✅        | ❌       | Build from cards                   |
+| `data-spool-append`    | ❌     | ❌        | ✅        | ❌       | Append new cards                   |
+| `data-spool-index`     | ❌     | ❌        | ✅        | ❌       | Show byte offsets                  |
+| **DataCard-Specific**  |
+| `data-card-compress`   | ❌     | ❌        | ❌        | ✅       | CML → DataCard                     |
+| `data-card-decompress` | ❌     | ❌        | ❌        | ✅       | DataCard → CML                     |
+| `data-card-validate`   | ❌     | ❌        | ❌        | ✅       | Validate structure                 |
+
+## 📖 Command Reference
+
+### Universal Commands (All Formats)
+
+#### `info` - Display Archive Metadata
 
 ```bash
-engram --version
-engram --help
-```
-
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/blackfall-labs/engram-cli
-cd engram-cli
-
-# Build with Cargo
-cargo build --release
-
-# Binary will be at: target/release/engram.exe (Windows) or target/release/engram (Unix)
-
-# Optionally install to cargo bin directory
-cargo install --path crates/engram-cli
-```
-
-## Commands
-
-### Keygen - Generate Keypairs
-
-Generate Ed25519 keypairs for signing archives:
-
-```bash
-engram keygen --private-key private.key --public-key public.key
-```
-
-**Output:**
-```
-Generating new Ed25519 keypair...
-✓ Private key saved to: private.key
-✓ Public key saved to: public.key
-
-Keep your private key secure and never share it!
-You can share your public key for signature verification.
-```
-
-### Pack - Create Archives
-
-Create an Engram archive from files or directories:
-
-```bash
-# Pack a directory
-engram pack my_data
-
-# Pack with custom output
-engram pack my_data -o archive.eng
-
-# Pack with specific compression
-engram pack my_data --compression zstd
-
-# Pack with manifest and signing
-engram pack my_data --manifest manifest.toml --sign-key private.key
+strategos info <archive> [options]
 ```
 
 **Options:**
-- `-o, --output <PATH>` - Output archive path (default: input name + `.eng`)
-- `-c, --compression <METHOD>` - Compression: `none`, `lz4` (default), `zstd`
-- `-m, --manifest <PATH>` - Manifest file (manifest.toml)
-- `-k, --sign-key <PATH>` - Private key for signing
 
-**Example Output:**
-```
-Packing: my_data
-Output: my_data.eng
-  Added: file1.txt
-  Added: subdir/file2.txt
-  Added: data.json
-Packed 3 files
-Archive created successfully: my_data.eng
-```
+- `--inspect` - Show detailed per-file information
+- `--verify` - Verify signatures and hashes
+- `--manifest` - Show manifest only
 
-### List - List Archive Contents
-
-List all files in an archive:
-
-```bash
-# Simple list
-engram list archive.eng
-
-# Detailed list with sizes and compression
-engram list archive.eng --long
-
-# List only database files
-engram list archive.eng --databases
-```
-
-**Example Output (--long):**
-```
-file1.txt                                          1024       512    lz4  (50.0%)
-data/large.json                                   10240      2048   zstd  (20.0%)
-```
-
-### Info - Archive Metadata
-
-Display archive metadata and statistics:
+**Examples:**
 
 ```bash
 # Basic info
-engram info archive.eng
+strategos info research.eng
 
-# Detailed inspection with per-file details
-engram info archive.eng --inspect
+# Full inspection with verification
+strategos info research.eng --inspect --verify
 
 # Show manifest only
-engram info archive.eng --manifest
-
-# Verify signatures
-engram info archive.eng --verify
+strategos info research.eng --manifest
 ```
 
-**Example Output:**
-```
-Archive: archive.eng
-Format Version: 0.3
-Total Files: 3
-Content Version: 0
-Total Size: 11264 bytes
-Compressed: 2560 bytes (22.7%)
+#### `list` - List Files/Items
 
-Manifest:
-  ID: my-archive
-  Name: My Archive
-  Version: 1.0.0
-  Author: John Doe
-  Signatures: 1
+```bash
+strategos list <archive> [options]
 ```
 
-### Extract - Extract Files
+**Options:**
 
-Extract files from an archive:
+- `--long`, `-l` - Show detailed information (size, compression, dates)
+- `--databases`, `-d` - List only database files (.db, .sqlite)
+
+**Examples:**
+
+```bash
+# Basic listing
+strategos list archive.eng
+
+# Detailed listing
+strategos list archive.eng --long
+
+# Show only databases
+strategos list archive.cart --databases
+```
+
+#### `extract` - Extract Contents
+
+```bash
+strategos extract <archive> --output <path> [options]
+```
+
+**Options:**
+
+- `--output`, `-o` - Output directory (required)
+- `--files`, `-f` - Extract only specific files (space-separated)
+- `--decrypt` - Decrypt encrypted archive with password (Engram only)
+
+**Examples:**
 
 ```bash
 # Extract all files
-engram extract archive.eng --output ./extracted
+strategos extract archive.eng --output ./extracted
 
 # Extract specific files
-engram extract archive.eng --output ./extracted --files file1.txt data.json
+strategos extract archive.eng --output ./extracted --files data.db README.md
+
+# Extract DataCard
+strategos extract document.card --output ./output
 ```
 
-**Example Output:**
-```
-Extracting to: ./extracted
-  Extracted: file1.txt
-  Extracted: subdir/file2.txt
-  Extracted: data.json
-Extraction complete
-```
-
-### Sign - Sign Archives
-
-Add cryptographic signatures to archives:
+#### `verify` - Verify Archive Integrity
 
 ```bash
-engram sign archive.eng --private-key private.key
-
-# With signer identity
-engram sign archive.eng --private-key private.key --signer "John Doe"
+strategos verify <archive> [options]
 ```
 
-**Example Output:**
-```
-Signing: archive.eng
-  Signature added
-  Signer: John Doe
-  Public key: cfc6873ad182091d5c1cef96c3d88d7dd5055a24004c5f710ec93afcebff3baf
-```
+**Options:**
 
-### Verify - Verify Archives
+- `--public-key`, `-k` - Public key for signature verification (Engram)
+- `--check-hashes` - Verify file hashes from manifest (Engram)
 
-Verify signatures and file integrity:
+**Examples:**
 
 ```bash
-# Verify signatures
-engram verify archive.eng --public-key public.key
+# Basic verification
+strategos verify archive.eng
+
+# Verify with specific public key
+strategos verify archive.eng --public-key pubkey.hex
 
 # Verify file hashes
-engram verify archive.eng --check-hashes
-
-# Both
-engram verify archive.eng --public-key public.key --check-hashes
+strategos verify archive.eng --check-hashes
 ```
 
-**Example Output:**
-```
-Verifying: archive.eng
-
-Verifying signatures...
-  ✓ Signature 1 valid
-
-Verifying file hashes...
-  ✓ file1.txt hash valid
-  ✓ file2.txt hash valid
-  ✓ data.json hash valid
-
-✓ Verification successful
-```
-
-### Query - SQLite Database Queries
-
-Query SQLite databases embedded in archives:
+#### `search` - Search Text Patterns
 
 ```bash
-# List all databases
-engram query archive.eng --list-databases
-
-# Execute SQL query
-engram query archive.eng --database data.db --sql "SELECT * FROM users"
-
-# Output as JSON
-engram query archive.eng --database data.db --sql "SELECT * FROM users" --format json
-
-# Output as CSV
-engram query archive.eng --database data.db --sql "SELECT * FROM users" --format csv
+strategos search <pattern> <path> [options]
 ```
 
-**Example Output (table format):**
-```
-Querying database: data.db
-id | name | email
-------------------------------------------------------------
-1 | Alice | alice@example.com
-2 | Bob | bob@example.com
-```
+**Options:**
 
-### Search - Text Search
+- `--in-archive` - Search inside archive files
+- `--case-insensitive`, `-i` - Case-insensitive search
 
-Search for text patterns in files:
+**Examples:**
 
 ```bash
-# Search in regular file
-engram search "pattern" file.txt
-
-# Search inside archive
-engram search "pattern" archive.eng --in-archive
+# Search in archive
+strategos search "error" logs.eng --in-archive
 
 # Case-insensitive search
-engram search "pattern" file.txt --case-insensitive
+strategos search "TODO" project.cart -i
 ```
 
-**Example Output:**
-```
-file1.txt:
-  This line contains the pattern we're looking for
-  Another line with the pattern here
-```
+#### `query` - Query SQLite Databases
 
-## Manifest Format
-
-Create a `manifest.toml` file for your archives:
-
-```toml
-id = "my-archive"
-name = "My Archive"
-description = "A description of my archive"
-version = "1.0.0"
-license = "MIT"
-tags = ["data", "backup"]
-capabilities = ["read", "query"]
-
-[author]
-name = "John Doe"
-email = "john@example.com"
-url = "https://example.com"
-```
-
-Then pack with the manifest:
+**Supported:** Engram, Cartridge only
 
 ```bash
-engram pack my_data --manifest manifest.toml
+strategos query <archive> [options]
 ```
 
-## Complete Workflow Example
+**Options:**
+
+- `--list-databases`, `-l` - List all databases in archive
+- `--database`, `-d` - Database file path within archive
+- `--sql`, `-s` - SQL query to execute
+- `--format`, `-f` - Output format: json, csv, table (default: table)
+
+**Examples:**
 
 ```bash
-# 1. Generate keypair for signing
-engram keygen --private-key my.key --public-key my.pub
+# List databases
+strategos query archive.eng --list-databases
 
-# 2. Create manifest
-cat > manifest.toml <<EOF
-id = "backup-2025"
-name = "Backup Archive"
-version = "1.0.0"
+# Query database (table output)
+strategos query archive.eng --database data.db --sql "SELECT * FROM users"
 
-[author]
-name = "Admin"
-EOF
+# Query with JSON output
+strategos query archive.eng -d data.db -s "SELECT name, age FROM users" -f json
 
-# 3. Pack directory with manifest and signing
-engram pack backup_data --manifest manifest.toml --sign-key my.key
-
-# 4. Verify the archive
-engram info backup_data.eng --verify
-
-# 5. List contents
-engram list backup_data.eng --long
-
-# 6. Query database (if archive contains .db files)
-engram query backup_data.eng --list-databases
-engram query backup_data.eng --database data.db --sql "SELECT COUNT(*) FROM records"
-
-# 7. Extract specific files
-engram extract backup_data.eng --output ./restore --files config.json
-
-# 8. Verify with public key
-engram verify backup_data.eng --public-key my.pub --check-hashes
+# Query with CSV output
+strategos query archive.cart -d stats.db -s "SELECT * FROM metrics" -f csv
 ```
 
-## Testing
+### Engram-Specific Commands
+
+#### `pack` - Create Archive
+
+```bash
+strategos pack <path> [options]
+```
+
+**Options:**
+
+- `--output`, `-o` - Output archive path
+- `--compression`, `-c` - Compression method: none, lz4, zstd (default: lz4)
+- `--manifest`, `-m` - Manifest file (manifest.toml)
+- `--sign-key`, `-k` - Private key for signing
+- `--encrypt` - Encrypt entire archive with password
+- `--encrypt-per-file` - Encrypt each file individually
+
+**Examples:**
+
+```bash
+# Pack directory with LZ4 compression
+strategos pack ./data --output archive.eng
+
+# Pack with manifest and signing
+strategos pack ./data -o archive.eng -m manifest.toml -k private.hex
+
+# Pack with Zstd compression
+strategos pack ./data -o archive.eng -c zstd
+
+# Pack with encryption
+strategos pack ./data -o archive.eng --encrypt
+```
+
+#### `sign` - Sign Archive
+
+```bash
+strategos sign <archive> --private-key <path> [options]
+```
+
+**Options:**
+
+- `--private-key`, `-k` - Private key file (required)
+- `--signer`, `-s` - Signer identity
+
+**Examples:**
+
+```bash
+# Sign archive
+strategos sign archive.eng --private-key private.hex
+
+# Sign with identity
+strategos sign archive.eng -k private.hex -s "John Doe <john@example.com>"
+```
+
+#### `keygen` - Generate Ed25519 Keypair
+
+```bash
+strategos keygen --private-key <path> --public-key <path>
+```
+
+**Options:**
+
+- `--private-key`, `-r` - Output path for private key (required)
+- `--public-key`, `-u` - Output path for public key (required)
+
+**Examples:**
+
+```bash
+# Generate keypair
+strategos keygen --private-key private.hex --public-key public.hex
+```
+
+### Cartridge-Specific Commands
+
+#### `cartridge-create` - Create Mutable Archive
+
+```bash
+strategos cartridge-create <slug> <title> [options]
+```
+
+**Options:**
+
+- `--output`, `-o` - Output path (default: slug.cart)
+
+**Examples:**
+
+```bash
+# Create Cartridge
+strategos cartridge-create "my-project" "My Project"
+
+# Create with custom path
+strategos cartridge-create "my-project" "My Project" --output ./archives/project.cart
+```
+
+#### `cartridge-write` - Write/Update File
+
+```bash
+strategos cartridge-write <archive> <file-path> <source>
+```
+
+**Examples:**
+
+```bash
+# Write file to Cartridge
+strategos cartridge-write project.cart "docs/README.md" ./README.md
+
+# Update existing file
+strategos cartridge-write project.cart "data/config.json" ./new-config.json
+```
+
+#### `cartridge-delete` - Delete File
+
+```bash
+strategos cartridge-delete <archive> <file-path>
+```
+
+**Examples:**
+
+```bash
+# Delete file from Cartridge
+strategos cartridge-delete project.cart "old-data.txt"
+```
+
+#### `cartridge-snapshot` - Create Snapshot
+
+```bash
+strategos cartridge-snapshot <archive> --name <name> --description <desc> --snapshot-dir <path>
+```
+
+**Options:**
+
+- `--name`, `-n` - Snapshot name (required)
+- `--description`, `-d` - Snapshot description (required)
+- `--snapshot-dir`, `-d` - Snapshot directory (required)
+
+**Examples:**
+
+```bash
+# Create snapshot
+strategos cartridge-snapshot project.cart \
+  --name "v1.0.0" \
+  --description "Release version 1.0.0" \
+  --snapshot-dir ./snapshots
+```
+
+### DataSpool-Specific Commands
+
+#### `data-spool-build` - Build Spool from Cards
+
+```bash
+strategos data-spool-build --output <path> <card1> <card2> ...
+```
+
+**Options:**
+
+- `--output`, `-o` - Output spool path (required)
+
+**Examples:**
+
+```bash
+# Build spool from card files
+strategos data-spool-build --output items.spool doc1.card doc2.card doc3.card
+
+# Build from wildcard
+strategos data-spool-build -o items.spool docs/*.card
+```
+
+#### `data-spool-append` - Append Cards
+
+```bash
+strategos data-spool-append <spool> <card1> <card2> ...
+```
+
+**Examples:**
+
+```bash
+# Append new cards
+strategos data-spool-append items.spool new1.card new2.card
+```
+
+#### `data-spool-index` - Show Index
+
+```bash
+strategos data-spool-index <spool>
+```
+
+**Examples:**
+
+```bash
+# Show byte offsets
+strategos data-spool-index items.spool
+```
+
+### DataCard-Specific Commands
+
+#### `data-card-compress` - Compress CML to DataCard
+
+```bash
+strategos data-card-compress <cml> --output <path> --dict <dict> --id <id> [options]
+```
+
+**Options:**
+
+- `--output`, `-o` - Output card path (required)
+- `--dict`, `-d` - BytePunch dictionary path (required)
+- `--id` - Document ID (required)
+- `--checksum` - Add CRC32 checksum
+
+**Examples:**
+
+```bash
+# Compress CML document
+strategos data-card-compress document.cml \
+  --output document.card \
+  --dict dictionary.json \
+  --id "doc-001"
+
+# Compress with checksum
+strategos data-card-compress document.cml \
+  -o document.card \
+  -d dictionary.json \
+  --id "doc-001" \
+  --checksum
+```
+
+#### `data-card-decompress` - Decompress DataCard to CML
+
+```bash
+strategos data-card-decompress <card> --output <path> --dict <dict>
+```
+
+**Options:**
+
+- `--output`, `-o` - Output CML path (required)
+- `--dict`, `-d` - BytePunch dictionary path (required)
+
+**Examples:**
+
+```bash
+# Decompress DataCard
+strategos data-card-decompress document.card \
+  --output document.cml \
+  --dict dictionary.json
+```
+
+#### `data-card-validate` - Validate DataCard
+
+```bash
+strategos data-card-validate <card>
+```
+
+**Examples:**
+
+```bash
+# Validate card structure
+strategos data-card-validate document.card
+```
+
+## 🎨 Workflow Examples
+
+### Research Project Workflow
+
+```bash
+# 1. Create working Cartridge archive
+strategos cartridge-create "research-2024" "Research Project 2024"
+
+# 2. Add initial files
+strategos cartridge-write research-2024.cart "notes/ideas.md" ./ideas.md
+strategos cartridge-write research-2024.cart "data/experiments.db" ./experiments.db
+
+# 3. Work iteratively (update files as needed)
+strategos cartridge-write research-2024.cart "notes/ideas.md" ./ideas-updated.md
+
+# 4. Create snapshot at milestone
+strategos cartridge-snapshot research-2024.cart \
+  --name "phase-1-complete" \
+  --description "Completed initial experiments" \
+  --snapshot-dir ./snapshots
+
+# 5. Query embedded database
+strategos query research-2024.cart \
+  --database data/experiments.db \
+  --sql "SELECT * FROM results WHERE status='completed'"
+
+# 6. When ready to preserve, convert to immutable Engram
+strategos pack ./extracted-cartridge --output research-2024-final.eng \
+  --compression zstd \
+  --manifest manifest.toml \
+  --sign-key private.hex
+```
+
+### CML Document Processing Pipeline
+
+```bash
+# 1. Extract text from PDF
+# (using byte-shredder-rs, not shown here)
+
+# 2. Convert to CML format
+# (using content-markup-language tools, not shown here)
+
+# 3. Create BytePunch dictionary from corpus
+# (using bytepunch-rs training, not shown here)
+
+# 4. Compress individual CML documents to DataCards
+strategos data-card-compress doc1.cml -o doc1.card -d corpus.dict --id "doc-001" --checksum
+strategos data-card-compress doc2.cml -o doc2.card -d corpus.dict --id "doc-002" --checksum
+strategos data-card-compress doc3.cml -o doc3.card -d corpus.dict --id "doc-003" --checksum
+
+# 5. Build DataSpool collection
+strategos data-spool-build --output documents.spool doc1.card doc2.card doc3.card
+
+# 6. Verify DataSpool integrity
+strategos verify documents.spool
+
+# 7. Extract specific card from spool
+strategos extract documents.spool --output ./output
+
+# 8. View spool index
+strategos data-spool-index documents.spool
+
+# 9. Append new documents
+strategos data-card-compress doc4.cml -o doc4.card -d corpus.dict --id "doc-004"
+strategos data-spool-append documents.spool doc4.card
+```
+
+### Archive Migration and Verification
+
+```bash
+# 1. Create initial archive with old data
+strategos pack ./legacy-data --output legacy.eng --compression lz4
+
+# 2. Verify archive integrity
+strategos verify legacy.eng
+
+# 3. List contents
+strategos list legacy.eng --long
+
+# 4. Extract for processing
+strategos extract legacy.eng --output ./working
+
+# 5. Create mutable Cartridge for updates
+strategos cartridge-create "legacy-updated" "Legacy Data Updated"
+
+# 6. Copy files and make modifications
+strategos cartridge-write legacy-updated.cart "data.json" ./working/data.json
+# ... make updates ...
+
+# 7. Query databases to verify changes
+strategos query legacy-updated.cart -d data.db -s "SELECT COUNT(*) FROM records"
+
+# 8. Create final immutable archive with stronger compression
+strategos pack ./updated-data --output legacy-final.eng \
+  --compression zstd \
+  --manifest manifest.toml \
+  --sign-key private.hex
+
+# 9. Verify signatures
+strategos verify legacy-final.eng --public-key public.hex --check-hashes
+
+# 10. Search for specific content
+strategos search "configuration" legacy-final.eng --in-archive
+```
+
+## 🏗️ Architecture
+
+### Format Detection
+
+Strategos automatically detects archive formats using magic bytes:
+
+```rust
+// Engram: PNG-style magic (8 bytes)
+0x89 'E' 'N' 'G' 0x0D 0x0A 0x1A 0x0A
+
+// Cartridge: Version header (8 bytes)
+'C' 'A' 'R' 'T' 0x00 0x01 0x00 0x00
+
+// DataSpool: Version marker (4 bytes)
+'S' 'P' '0' '1'
+
+// DataCard: Format marker (4 bytes)
+'C' 'A' 'R' 'D'
+```
+
+### Trait System
+
+Unified interface through Rust traits:
+
+```rust
+trait Archive {
+    fn open(path: &Path) -> Result<Self>;
+    fn info(&mut self) -> Result<ArchiveInfo>;
+    fn list_files(&mut self) -> Result<Vec<FileEntry>>;
+    fn extract(&mut self, output: &Path, files: Option<&[String]>) -> Result<()>;
+    fn verify(&mut self) -> Result<bool>;
+    fn search(&mut self, pattern: &str, case_insensitive: bool) -> Result<Vec<SearchResult>>;
+}
+
+trait MutableArchive: Archive {
+    fn write_file(&mut self, path: &str, data: &[u8]) -> Result<()>;
+    fn delete_file(&mut self, path: &str) -> Result<()>;
+}
+
+trait QueryableArchive: Archive {
+    fn list_databases(&mut self) -> Result<Vec<String>>;
+    fn query(&mut self, database: &str, sql: &str, format: OutputFormat) -> Result<String>;
+}
+```
+
+### Module Structure
+
+```
+strategos/
+├── src/
+│   ├── main.rs              # CLI entry point
+│   ├── commands/
+│   │   ├── shared.rs        # Format-agnostic commands
+│   │   ├── cartridge.rs     # Cartridge-specific
+│   │   ├── dataspool.rs     # DataSpool-specific
+│   │   ├── datacard.rs      # DataCard-specific
+│   │   └── [engram commands]
+│   ├── formats/
+│   │   ├── traits.rs        # Archive traits
+│   │   ├── detection.rs     # Magic byte detection
+│   │   ├── engram.rs        # Engram wrapper
+│   │   ├── cartridge.rs     # Cartridge wrapper
+│   │   ├── dataspool.rs     # DataSpool wrapper
+│   │   └── datacard.rs      # DataCard wrapper
+│   ├── crypto/              # Ed25519 keys
+│   ├── manifest/            # TOML → JSON conversion
+│   └── utils/               # Compression, paths
+└── Cargo.toml
+```
+
+## 📊 Performance Characteristics
+
+| Format    | Read Speed | Write Speed     | Compression           | Searchable | Queryable        |
+| --------- | ---------- | --------------- | --------------------- | ---------- | ---------------- |
+| Engram    | Fast       | N/A (immutable) | High (Zstd)           | Yes        | Yes (SQLite VFS) |
+| Cartridge | Fast       | Medium          | None                  | Yes        | Yes (SQLite VFS) |
+| DataSpool | Very Fast  | Append-only     | N/A                   | Yes        | No               |
+| DataCard  | Medium     | N/A (immutable) | Very High (BytePunch) | Limited    | No               |
+
+## 🔒 Security Features
+
+### Engram
+
+- Ed25519 signatures (cryptographic authenticity)
+- SHA-256 file hashing (integrity verification)
+- AES-256-GCM encryption (confidentiality)
+- Manifest with embedded signatures
+
+### Cartridge
+
+- Snapshot-based versioning
+- Page-level integrity checks
+- B-tree catalog structure
+
+### DataSpool
+
+- Append-only design (tamper-evident)
+- Byte-offset index (efficient access)
+- Companion SQLite database (queryable metadata)
+
+### DataCard
+
+- CRC32 checksums (data integrity)
+- BytePunch compression (space-efficient)
+- Immutable design (preserves original state)
+
+## 🧪 Testing
 
 ```bash
 # Run all tests
 cargo test
 
-# Run specific test
-cargo test pack_directory
+# Run specific module tests
+cargo test --test cli
 
-# Run tests with output
+# Run with output
 cargo test -- --nocapture
+
+# Run benchmarks (if available)
+cargo bench
 ```
 
-## Command Aliases
+## 🤝 Contributing
 
-- `ls` → `list`
-- `i` → `info`
-- `p` → `pack`
-- `x` → `extract`
-- `q` → `query`
+Strategos is part of the Blackfall Labs ecosystem. Contributions welcome!
 
-## Development
+1. Follow Rust 2024 edition standards
+2. Run `cargo fmt` and `cargo clippy` before committing
+3. Write tests for new commands
+4. Update documentation
+5. Follow commit message format:
 
-### Project Structure
+   ```
+   <type>(<scope>): <subject>
 
-```
-engram-cli/
-├── crates/
-│   └── engram-cli/
-│       ├── src/
-│       │   ├── main.rs          # CLI entry point
-│       │   ├── commands/        # Command implementations
-│       │   │   ├── pack.rs
-│       │   │   ├── list.rs
-│       │   │   ├── info.rs
-│       │   │   ├── extract.rs
-│       │   │   ├── sign.rs
-│       │   │   ├── verify.rs
-│       │   │   ├── keygen.rs
-│       │   │   ├── query.rs
-│       │   │   └── search.rs
-│       │   ├── crypto/          # Cryptography (keypairs)
-│       │   ├── manifest/        # Manifest handling
-│       │   └── utils/           # Utilities
-│       └── tests/               # Integration tests
-└── Cargo.toml
-```
+   Generated with Claude Code
+   ```
 
-### Building
+## 📝 License
 
-```bash
-# Debug build
-cargo build
+Dual-licensed under MIT OR Apache-2.0
 
-# Release build
-cargo build --release
+## 🔗 Related Projects
 
-# Check without building
-cargo check
+- **engram-rs** - Immutable signed archives
+- **cartridge-rs** - Mutable page-based archives with S3 API
+- **dataspool-rs** - Append-only item collections
+- **datacard-rs** - BytePunch-compressed CML documents
+- **bytepunch-rs** - Profile-aware compression
+- **content-markup-language** - Structured knowledge format
 
-# Format code
-cargo fmt
+## 📚 Resources
 
-# Lint
-cargo clippy
-```
+- [Engram Specification](../engram-specification/)
+- [CML Documentation](../content-markup-language/)
+- [Blackfall Labs Ecosystem](../CLAUDE.md)
 
-## License
+## 🐛 Troubleshooting
 
-MIT
+### "Unknown archive format"
 
-## Related Projects
+- Ensure file has correct magic bytes
+- Check file isn't corrupted
+- Verify file extension matches format
 
-- [engram-specification](https://github.com/blackfall-labs/engram-specification) - Engram format specification
-- [engram-rs](https://github.com/blackfall-labs/engram-rs) - Core Rust library
+### "Failed to open archive"
+
+- Check file exists and is readable
+- Verify file permissions
+- Ensure format library is properly installed
+
+### "Signature verification failed"
+
+- Verify using correct public key
+- Check archive hasn't been modified
+- Ensure manifest is present
+
+### "Database not found in archive"
+
+- List databases with `--list-databases`
+- Check database path is correct
+- Verify archive contains SQLite VFS
+
+---
+
+**Built with ❤️ by Blackfall Labs**
