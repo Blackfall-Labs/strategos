@@ -16,7 +16,7 @@ pub struct EngramArchive {
 
 impl Archive for EngramArchive {
     fn open(path: &Path) -> Result<Self> {
-        let reader = ArchiveReader::open(path)
+        let reader = ArchiveReader::open_and_init(path)
             .with_context(|| format!("Failed to open Engram archive: {}", path.display()))?;
 
         Ok(Self {

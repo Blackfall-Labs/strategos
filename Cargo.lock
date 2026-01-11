@@ -518,7 +518,7 @@ dependencies = [
 
 [[package]]
 name = "dataspool-rs"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytepunch-rs 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusqlite",
