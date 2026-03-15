@@ -111,6 +111,71 @@ pub fn list_snapshots(snapshot_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Vacuum a Cartridge — rebuild without dead pages to reclaim disk space.
+///
+/// Creates a fresh cartridge, copies all live entries, then swaps with the original.
+pub fn vacuum(archive_path: &Path) -> Result<()> {
+    let source = Cartridge::open(archive_path)
+        .with_context(|| format!("Failed to open Cartridge: {}", archive_path.display()))?;
+
+    let slug = source.slug()?;
+    let title = source.title()?;
+
+    // List all live entries
+    let entries = source.list("")?;
+    let entry_count = entries.len();
+
+    // Read all content into memory before creating the new cartridge
+    let mut contents: Vec<(String, Vec<u8>)> = Vec::new();
+    for entry in &entries {
+        // Skip the internal cartridge metadata — it's recreated by create_at
+        if entry == ".cartridge" || entry.starts_with(".cartridge/") {
+            continue;
+        }
+        match source.read(entry) {
+            Ok(data) => contents.push((entry.clone(), data)),
+            Err(e) => {
+                eprintln!("  Warning: skipping {entry}: {e}");
+            }
+        }
+    }
+    drop(source);
+
+    // Build temp path next to original (avoid dots in stem — slug validation)
+    let tmp_path = archive_path.with_file_name(format!("{slug}-vacuum.cart"));
+
+    // Create fresh cartridge
+    let mut dest = Cartridge::create_at(&tmp_path, &slug, &title)
+        .with_context(|| format!("Failed to create temp cartridge: {}", tmp_path.display()))?;
+
+    let mut copied = 0usize;
+    for (path, data) in &contents {
+        dest.write(path, data)?;
+        copied += 1;
+    }
+    dest.flush()?;
+    drop(dest);
+
+    // Swap: original → .old, vacuum → original
+    let old_path = archive_path.with_file_name(format!("{slug}-old.cart"));
+    std::fs::rename(archive_path, &old_path)
+        .with_context(|| "Failed to move original to .old")?;
+    std::fs::rename(&tmp_path, archive_path)
+        .with_context(|| "Failed to move vacuumed to original")?;
+    std::fs::remove_file(&old_path)
+        .with_context(|| "Failed to remove .old file")?;
+
+    let old_size = std::fs::metadata(archive_path)
+        .map(|m| m.len())
+        .unwrap_or(0);
+
+    println!("Vacuumed Cartridge: {}", archive_path.display());
+    println!("  Entries: {entry_count} listed, {copied} copied");
+    println!("  New size: {:.2} MB", old_size as f64 / (1024.0 * 1024.0));
+
+    Ok(())
+}
+
 /// Restore a Cartridge from a snapshot
 pub fn restore(archive_path: &Path, snapshot_id: u64, snapshot_dir: &Path) -> Result<()> {
     let mut cart = Cartridge::open(archive_path)

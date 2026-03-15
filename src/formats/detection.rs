@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-/// Archive format types supported by Strategos
+/// Archive format types supported by Wrench
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArchiveFormat {
     /// Engram (.eng) - Immutable signed archives

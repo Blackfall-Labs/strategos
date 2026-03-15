@@ -1,6 +1,6 @@
-//! Strategos - Universal archive management CLI
+//! Wrench - Diagnostics CLI for Engram, Cartridge, DataSpool, and DataCard file formats
 //!
-//! Strategos provides unified command-line interface for managing multiple
+//! Wrench provides a unified command-line interface for managing multiple
 //! archive formats: Engram, Cartridge, DataSpool, and DataCard.
 
 use anyhow::Result;
@@ -14,11 +14,11 @@ mod manifest;
 mod utils;
 
 #[derive(Parser)]
-#[command(name = "strategos")]
+#[command(name = "wrench")]
 #[command(
-    about = "Universal archive management CLI for Engram, Cartridge, DataSpool, and DataCard",
+    about = "Diagnostics CLI for Engram, Cartridge, DataSpool, and DataCard file formats",
     version,
-    long_about = "Strategos provides a unified interface for working with multiple archive formats.\n\n\
+    long_about = "Wrench provides a unified interface for working with multiple archive formats.\n\n\
                   Supported formats:\n  \
                   - Engram (.eng): Immutable signed archives\n  \
                   - Cartridge (.cart): Mutable page-based archives\n  \
@@ -232,6 +232,12 @@ enum Commands {
 
         /// File path to delete
         file_path: String,
+    },
+
+    /// Vacuum a Cartridge — rebuild without dead pages to reclaim disk space
+    CartridgeVacuum {
+        /// Cartridge archive path
+        archive: PathBuf,
     },
 
     /// Create a snapshot of a Cartridge
@@ -449,6 +455,10 @@ fn main() -> Result<()> {
 
         Commands::CartridgeDelete { archive, file_path } => {
             commands::cartridge::delete(&archive, &file_path)?;
+        }
+
+        Commands::CartridgeVacuum { archive } => {
+            commands::cartridge::vacuum(&archive)?;
         }
 
         Commands::CartridgeSnapshot {
